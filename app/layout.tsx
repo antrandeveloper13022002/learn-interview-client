@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ReduxProvider } from "@/lib/redux/provider";
+import { env } from "@/lib/env";
+import { text } from "@/lib/text";
+import { APP_NAME } from "@/lib/constants";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,11 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: "Interview Practice",
-    template: "%s | Interview Practice",
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`,
   },
-  description: "Luyện tập phỏng vấn với bộ câu hỏi thực tế theo từng chủ đề.",
+  description: text.home.siteDescription,
 };
 
 export default function RootLayout({
