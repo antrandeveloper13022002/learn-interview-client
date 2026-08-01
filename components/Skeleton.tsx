@@ -1,3 +1,5 @@
+import { text } from "@/lib/text";
+
 type SkeletonProps = {
   className?: string;
 };
@@ -11,7 +13,7 @@ type SkeletonGroupProps = {
   children: React.ReactNode;
 };
 
-export function SkeletonGroup({ label = "Đang tải...", children }: SkeletonGroupProps) {
+export function SkeletonGroup({ label = text.common.loading, children }: SkeletonGroupProps) {
   return (
     <div role="status" aria-busy="true" className="contents">
       <span className="sr-only">{label}</span>
