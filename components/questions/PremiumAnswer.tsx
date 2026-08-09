@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/components/i18n/LocaleLink";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { useGetQuestionDetailQuery } from "@/lib/redux/questionsApi";
-import { text } from "@/lib/text";
+import { useText } from "@/lib/text/useText";
 import { PAGE_ROUTES } from "@/lib/routes";
+import { LockIcon } from "@/components/icons";
+import { RevealAnswer } from "@/components/questions/RevealAnswer";
 
 /**
  * Only rendered when the server-scoped fetch (always guest) came back
@@ -24,6 +26,7 @@ import { PAGE_ROUTES } from "@/lib/routes";
  * logged-in visitor whose entitlement is worth re-checking client-side.
  */
 export function PremiumAnswer({ slug }: { slug: string }) {
+  const text = useText();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const { data, isFetching, isError, refetch } = useGetQuestionDetailQuery(slug, {
     skip: !accessToken,
@@ -31,18 +34,18 @@ export function PremiumAnswer({ slug }: { slug: string }) {
 
   if (accessToken && isFetching) {
     return (
-      <div
-        role="status"
-        aria-busy="true"
-        className="min-h-40 rounded-lg border border-neutral-200 bg-neutral-50 p-6"
-      >
+      <div role="status" aria-busy="true" className="min-h-40 rounded-lg border border-border bg-surface p-6">
         <span className="sr-only">{text.questions.detail.premiumAnswer.checkingAccessSrOnly}</span>
       </div>
     );
   }
 
   if (data?.answer) {
-    return <div className="whitespace-pre-wrap leading-relaxed">{data.answer}</div>;
+    return (
+      <RevealAnswer>
+        <div className="whitespace-pre-wrap leading-relaxed">{data.answer}</div>
+      </RevealAnswer>
+    );
   }
 
   // A logged-in visitor whose entitlement check failed to *load* is not the
@@ -50,16 +53,13 @@ export function PremiumAnswer({ slug }: { slug: string }) {
   // already-paying subscriber to "upgrade" when we simply don't know yet.
   if (accessToken && isError) {
     return (
-      <div
-        role="alert"
-        className="min-h-40 rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-center"
-      >
-        <p className="font-semibold">{text.questions.detail.premiumAnswer.checkFailedTitle}</p>
-        <p className="mt-2 text-sm text-neutral-600">{text.questions.detail.premiumAnswer.checkFailedBody}</p>
+      <div role="alert" className="min-h-40 rounded-lg border border-border bg-surface p-6 text-center">
+        <p className="font-semibold text-text">{text.questions.detail.premiumAnswer.checkFailedTitle}</p>
+        <p className="mt-2 text-sm text-text-muted">{text.questions.detail.premiumAnswer.checkFailedBody}</p>
         <button
           type="button"
           onClick={() => refetch()}
-          className="mt-4 min-h-11 rounded-md border border-neutral-300 px-5 py-2 font-medium"
+          className="mt-4 min-h-11 rounded-md border border-border px-5 py-2 font-medium text-text hover:bg-border"
         >
           {text.common.retryLabel}
         </button>
@@ -68,16 +68,29 @@ export function PremiumAnswer({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="min-h-40 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-6 text-center">
-      <p className="font-semibold text-amber-900">{text.questions.detail.premiumAnswer.gatedTitle}</p>
-      <p className="mt-2 text-sm text-amber-800">
+    <div className="relative min-h-40 overflow-hidden rounded-lg border border-dashed border-border bg-bg p-6 text-center">
+      {/* Decorative only — fake lines, never the real answer. The real
+          answer is withheld server-side for unentitled requests
+          (business-rule.md#premium-gating rejected blurring real text as
+          bypassable); this just teases that content exists here. */}
+      <div aria-hidden="true" className="mx-auto mb-5 max-w-xs space-y-2.5 blur-[3px]">
+        <div className="h-3 rounded-full bg-text/25" />
+        <div className="h-3 w-11/12 rounded-full bg-text/25" />
+        <div className="h-3 w-4/5 rounded-full bg-text/25" />
+        <div className="h-3 w-3/5 rounded-full bg-text/25" />
+      </div>
+      <span className="relative mx-auto mb-3 grid size-12 place-items-center rounded-full bg-premium-bg text-premium-icon">
+        <LockIcon className="size-5" />
+      </span>
+      <p className="font-semibold text-text">{text.questions.detail.premiumAnswer.gatedTitle}</p>
+      <p className="mt-2 text-sm text-text-muted">
         {accessToken
           ? text.questions.detail.premiumAnswer.gatedBodyLoggedIn
           : text.questions.detail.premiumAnswer.gatedBodyLoggedOut}
       </p>
       <Link
         href={accessToken ? PAGE_ROUTES.subscribe : PAGE_ROUTES.login}
-        className="mt-4 inline-block min-h-11 rounded-md bg-blue-700 px-5 py-2 font-medium text-white"
+        className="mt-4 inline-block min-h-11 rounded-md bg-marker-500 px-5 py-2 font-semibold text-ink-950 hover:bg-marker-600"
       >
         {accessToken ? text.questions.detail.premiumAnswer.upgradeCta : text.questions.detail.premiumAnswer.loginCta}
       </Link>

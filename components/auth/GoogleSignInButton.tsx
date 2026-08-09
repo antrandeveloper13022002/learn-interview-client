@@ -10,7 +10,7 @@ export function GoogleSignInButton({ label }: { label: string }) {
   return (
     <a
       href={`${env.NEXT_PUBLIC_API_URL}${API_ROUTES.auth.google}`}
-      className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-neutral-300 font-medium"
+      className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-border font-medium text-text hover:bg-border"
     >
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
         <path d="M22 12.2c0-.7-.06-1.4-.18-2.1H12v4h5.6a4.8 4.8 0 0 1-2.1 3.1v2.6h3.4c2-1.8 3.1-4.5 3.1-7.6Z" fill="#4285F4" />

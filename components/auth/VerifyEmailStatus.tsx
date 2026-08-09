@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/i18n/LocaleLink";
 import { useSearchParams } from "next/navigation";
 import { useVerifyEmailMutation } from "@/lib/redux/authApi";
 import type { ApiErrorBody } from "@/lib/types";
-import { text } from "@/lib/text";
+import { useText } from "@/lib/text/useText";
+import type { vi } from "@/lib/text/vi";
 import { PAGE_ROUTES } from "@/lib/routes";
 
-const COPY = text.auth.verifyEmail.status;
-
-// Derived from COPY's own keys (not a hand-maintained parallel union) so the
-// two can never list a different set of statuses.
-type Status = "verifying" | keyof typeof COPY;
+// Derived from the dictionary's own keys (not a hand-maintained parallel
+// union) so the two can never list a different set of statuses. Type-only
+// import — `vi` is never used as a value here (see lib/text/index.ts).
+type Status = "verifying" | keyof (typeof vi)["auth"]["verifyEmail"]["status"];
 
 function statusFromError(err: unknown): Status {
   if (err && typeof err === "object" && "data" in err) {
@@ -24,6 +24,7 @@ function statusFromError(err: unknown): Status {
 }
 
 export function VerifyEmailStatus() {
+  const text = useText();
   const token = useSearchParams().get("token");
   const [verifyEmail] = useVerifyEmailMutation();
   const [status, setStatus] = useState<Status>(token ? "verifying" : "missing");
@@ -42,17 +43,17 @@ export function VerifyEmailStatus() {
     return (
       <div role="status" aria-busy="true" className="text-center">
         <span className="sr-only">{text.auth.verifyEmail.verifyingSrOnly}</span>
-        <p className="text-neutral-600">{text.auth.verifyEmail.verifyingBody}</p>
+        <p className="text-text-muted">{text.auth.verifyEmail.verifyingBody}</p>
       </div>
     );
   }
 
-  const { title, body } = COPY[status];
+  const { title, body } = text.auth.verifyEmail.status[status];
   return (
-    <div role="status" className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
-      <p className="font-semibold">{title}</p>
-      <p className="mt-2 text-sm text-neutral-600">{body}</p>
-      <Link href={PAGE_ROUTES.login} className="mt-4 inline-block text-sm font-medium text-blue-700">
+    <div role="status" className="text-center">
+      <p className="font-semibold text-text">{title}</p>
+      <p className="mt-2 text-sm text-text-muted">{body}</p>
+      <Link href={PAGE_ROUTES.login} className="mt-4 inline-block text-sm font-medium text-marker-700">
         {text.common.goToLoginLink}
       </Link>
     </div>

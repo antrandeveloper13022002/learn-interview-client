@@ -1,5 +1,5 @@
 import { api } from "@/lib/redux/api";
-import { sessionCleared, sessionEstablished } from "@/lib/redux/authSlice";
+import { displayNameUpdated, sessionCleared, sessionEstablished } from "@/lib/redux/authSlice";
 import { API_ROUTES } from "@/lib/routes";
 import type {
   AuthResponse,
@@ -8,6 +8,8 @@ import type {
   VerifyEmailRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  UpdateProfileRequest,
+  ProfileResponse,
 } from "@/lib/types";
 
 export const authApi = api.injectEndpoints({
@@ -18,8 +20,13 @@ export const authApi = api.injectEndpoints({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (body) => ({ url: API_ROUTES.auth.login, method: "POST", body }),
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(sessionEstablished(data));
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(sessionEstablished(data));
+        } catch {
+          // Invalid credentials, unverified email, etc. — LoginForm reads
+          // the mutation's own `error` state for user feedback.
+        }
       },
     }),
     refresh: builder.mutation<AuthResponse, void>({
@@ -50,6 +57,18 @@ export const authApi = api.injectEndpoints({
     resetPassword: builder.mutation<void, ResetPasswordRequest>({
       query: (body) => ({ url: API_ROUTES.auth.resetPassword, method: "POST", body }),
     }),
+    updateProfile: builder.mutation<ProfileResponse, UpdateProfileRequest>({
+      query: (body) => ({ url: API_ROUTES.myProfile, method: "PATCH", body }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(displayNameUpdated(data.displayName));
+        } catch {
+          // Validation error etc. — the profile form reads the mutation's
+          // own `error` state for user feedback.
+        }
+      },
+    }),
   }),
 });
 
@@ -61,4 +80,5 @@ export const {
   useVerifyEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useUpdateProfileMutation,
 } = authApi;

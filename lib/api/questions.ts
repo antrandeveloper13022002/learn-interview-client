@@ -1,12 +1,18 @@
 import { apiFetch } from "@/lib/api/client";
 import { LISTING_REVALIDATE_SECONDS } from "@/lib/constants";
 import { API_ROUTES } from "@/lib/routes";
-import type { Category, QuestionDetail, QuestionListParams, QuestionListResponse } from "@/lib/types";
+import type { Category, QuestionDetail, QuestionListParams, QuestionListResponse, QuestionTagOption } from "@/lib/types";
 
-function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
+function buildQuery(params: Record<string, string | number | boolean | string[] | undefined>): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === "") continue;
+    // Repeated key per array entry (`?tag=a&tag=b`) — matches the backend's
+    // Express 5 "simple" query-parser expectation (FU-22).
+    if (Array.isArray(value)) {
+      for (const v of value) search.append(key, v);
+      continue;
+    }
     search.set(key, String(value));
   }
   const qs = search.toString();
@@ -15,6 +21,12 @@ function buildQuery(params: Record<string, string | number | boolean | undefined
 
 export function getCategories(): Promise<Category[]> {
   return apiFetch<Category[]>(API_ROUTES.categories, {
+    next: { revalidate: LISTING_REVALIDATE_SECONDS },
+  });
+}
+
+export function getQuestionTags(): Promise<QuestionTagOption[]> {
+  return apiFetch<QuestionTagOption[]>(API_ROUTES.questionTags, {
     next: { revalidate: LISTING_REVALIDATE_SECONDS },
   });
 }

@@ -4,6 +4,10 @@ export type SessionUser = {
   id: string;
   email: string;
   role: Role;
+  // Added FU-17 (2026-08-06) — optional, self-service editable via
+  // PATCH /me/profile. No separate GET endpoint; this is the one place
+  // the frontend reads the caller's current value from.
+  displayName: string | null;
 };
 
 export type AuthResponse = {
@@ -20,6 +24,9 @@ export type LoginRequest = {
   email: string;
   password: string;
 };
+
+export type UpdateProfileRequest = { displayName: string | null };
+export type ProfileResponse = { id: string; email: string; displayName: string | null };
 
 export type VerifyEmailRequest = { token: string };
 export type ForgotPasswordRequest = { email: string };

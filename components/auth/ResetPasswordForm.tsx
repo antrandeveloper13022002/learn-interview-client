@@ -1,15 +1,16 @@
 "use client";
 
 import { useId, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/components/i18n/LocaleLink";
 import { useSearchParams } from "next/navigation";
 import { useResetPasswordMutation } from "@/lib/redux/authApi";
 import type { ApiErrorBody } from "@/lib/types";
-import { text } from "@/lib/text";
+import { useText } from "@/lib/text/useText";
+import type { TextDictionary } from "@/lib/text";
 import { AUTH_PASSWORD_MIN_LENGTH } from "@/lib/constants";
 import { PAGE_ROUTES } from "@/lib/routes";
 
-function tokenErrorCopy(err: unknown): string {
+function tokenErrorCopy(err: unknown, text: TextDictionary): string {
   if (err && typeof err === "object" && "data" in err) {
     const code = (err as { data?: ApiErrorBody }).data?.error.code;
     if (code === "TOKEN_EXPIRED") return text.auth.resetPassword.errors.tokenExpired;
@@ -19,6 +20,7 @@ function tokenErrorCopy(err: unknown): string {
 }
 
 export function ResetPasswordForm() {
+  const text = useText();
   const token = useSearchParams().get("token");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -38,19 +40,19 @@ export function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div role="alert" className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
-        <p className="font-semibold">{text.auth.resetPassword.missingToken.title}</p>
-        <p className="mt-2 text-sm text-neutral-600">{text.auth.resetPassword.missingToken.body}</p>
+      <div role="alert" className="rounded-lg border border-border bg-bg p-6 text-center">
+        <p className="font-semibold text-text">{text.auth.resetPassword.missingToken.title}</p>
+        <p className="mt-2 text-sm text-text-muted">{text.auth.resetPassword.missingToken.body}</p>
       </div>
     );
   }
 
   if (isSuccess) {
     return (
-      <div role="status" className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
-        <p className="font-semibold">{text.auth.resetPassword.success.title}</p>
-        <p className="mt-2 text-sm text-neutral-600">{text.auth.resetPassword.success.body}</p>
-        <Link href={PAGE_ROUTES.login} className="mt-4 inline-block text-sm font-medium text-blue-700">
+      <div role="status" className="rounded-lg border border-border bg-bg p-6 text-center">
+        <p className="font-semibold text-text">{text.auth.resetPassword.success.title}</p>
+        <p className="mt-2 text-sm text-text-muted">{text.auth.resetPassword.success.body}</p>
+        <Link href={PAGE_ROUTES.login} className="mt-4 inline-block text-sm font-medium text-marker-700">
           {text.common.goToLoginLink}
         </Link>
       </div>
@@ -60,13 +62,13 @@ export function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4" aria-busy={isLoading}>
       {error && (
-        <div role="alert" className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
-          {tokenErrorCopy(error)}
+        <div role="alert" className="rounded-md bg-flag-bg px-4 py-3 text-sm text-flag-text">
+          {tokenErrorCopy(error, text)}
         </div>
       )}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="reset-password" className="text-sm font-semibold">
+        <label htmlFor="reset-password" className="text-sm font-semibold text-text">
           {text.auth.resetPassword.newPasswordLabel}
         </label>
         <input
@@ -78,15 +80,15 @@ export function ResetPasswordForm() {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           aria-describedby={passwordHintId}
-          className="min-h-11 rounded-md border border-neutral-300 px-3"
+          className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
         />
-        <span id={passwordHintId} className="text-sm text-neutral-500">
+        <span id={passwordHintId} className="text-sm text-text-muted">
           {text.common.passwordHint(AUTH_PASSWORD_MIN_LENGTH)}
         </span>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="reset-password-confirm" className="text-sm font-semibold">
+        <label htmlFor="reset-password-confirm" className="text-sm font-semibold text-text">
           {text.auth.resetPassword.confirmPasswordLabel}
         </label>
         <input
@@ -99,10 +101,10 @@ export function ResetPasswordForm() {
           onBlur={() => setMismatchTouched(true)}
           aria-invalid={mismatch || undefined}
           aria-describedby={mismatch ? confirmErrorId : undefined}
-          className="min-h-11 rounded-md border border-neutral-300 px-3 aria-invalid:border-red-600"
+          className="min-h-11 rounded-md border border-border bg-surface px-3 text-text aria-invalid:border-flag-600"
         />
         {mismatch && (
-          <p id={confirmErrorId} className="text-sm text-red-700">
+          <p id={confirmErrorId} className="text-sm text-flag-text">
             {text.auth.resetPassword.mismatchError}
           </p>
         )}
@@ -111,7 +113,7 @@ export function ResetPasswordForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className="min-h-11 rounded-md bg-blue-700 font-semibold text-white disabled:opacity-60"
+        className="min-h-11 rounded-md bg-marker-500 font-semibold text-ink-950 hover:bg-marker-600 disabled:opacity-60"
       >
         {isLoading ? text.auth.resetPassword.submitLoading : text.auth.resetPassword.submitLabel}
       </button>

@@ -8,6 +8,13 @@ export type Category = {
   id: string;
   name: string;
   slug: string;
+  questionCount: number;
+};
+
+export type QuestionTagOption = {
+  id: string;
+  name: string;
+  questionCount: number;
 };
 
 export type QuestionSummary = {
@@ -17,6 +24,8 @@ export type QuestionSummary = {
   difficulty: Difficulty;
   isPremium: boolean;
   categoryId: string;
+  // Confirmed 2026-08-06 (BE-51/52) — fixed taxonomy, tag names not objects.
+  tags: string[];
 };
 
 export type QuestionListResponse = {
@@ -40,6 +49,9 @@ export type QuestionListParams = {
   categoryId?: string;
   difficulty?: Difficulty;
   isPremium?: boolean;
+  // Tag name(s), not id — matches QuestionSummary.tags' shape (BE-54).
+  // Multiple tags are AND-matched server-side (FU-22).
+  tag?: string[];
   q?: string;
   page?: number;
   pageSize?: number;

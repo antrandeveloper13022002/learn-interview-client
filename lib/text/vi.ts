@@ -1,9 +1,30 @@
-import type { Difficulty } from "@/lib/types";
+import type { Difficulty, EmployeeSizeRange } from "@/lib/types";
 
 // All Vietnamese UI copy for frontend-user, namespaced by feature. Never
 // imported directly by components — go through "./index" (`text`), the one
 // place a future locale would be swapped in without touching call sites.
 export const vi = {
+  header: {
+    navAriaLabel: "Chính",
+    homeLink: "Trang chủ",
+    questionsLink: "Câu hỏi",
+    companiesLink: "Công ty",
+    subscribeLink: "Bảng giá",
+    bookmarksLink: "Câu hỏi đã lưu",
+    profileLink: "Hồ sơ",
+    logoutLabel: "Đăng xuất",
+    loginLink: "Đăng nhập",
+    loginRegisterLink: "Đăng nhập / Đăng ký",
+    closeMenuLabel: "Đóng menu",
+    openMenuLabel: "Mở menu điều hướng",
+  },
+  footer: {
+    tagline: "Nền tảng luyện phỏng vấn dành cho thị trường Việt Nam.",
+  },
+  themeToggle: {
+    switchToLight: "Chuyển sang chế độ sáng",
+    switchToDark: "Chuyển sang chế độ tối",
+  },
   common: {
     loading: "Đang tải…",
     or: "hoặc",
@@ -14,11 +35,15 @@ export const vi = {
     retryLabel: "Thử lại",
     genericErrorTitle: "Đã có lỗi xảy ra",
     genericErrorBody: "Vui lòng thử lại. Nếu lỗi vẫn tiếp diễn, hãy quay lại sau.",
+    notFoundTitle: "Không tìm thấy trang",
+    notFoundBody: "Trang bạn tìm không tồn tại hoặc đã được di chuyển.",
+    backToHomeLink: "Về trang chủ",
   },
   auth: {
     login: {
       pageTitle: "Đăng nhập",
       heading: "Đăng nhập",
+      subtitle: "Đăng nhập để tiếp tục luyện tập.",
       emailLabel: "Email",
       passwordLabel: "Mật khẩu",
       forgotPasswordLink: "Quên mật khẩu?",
@@ -36,6 +61,7 @@ export const vi = {
     register: {
       pageTitle: "Tạo tài khoản",
       heading: "Tạo tài khoản",
+      subtitle: "Tạo tài khoản miễn phí để lưu câu hỏi và luyện tập.",
       emailLabel: "Email",
       passwordLabel: "Mật khẩu",
       submitLabel: "Tạo tài khoản",
@@ -46,6 +72,9 @@ export const vi = {
       emailTakenPrefix: "Email này đã được đăng ký.",
       emailTakenLoginLink: "Đăng nhập",
       emailTakenSuffix: "hoặc dùng email khác.",
+      errors: {
+        validationError: "Vui lòng kiểm tra lại email và mật khẩu đã nhập.",
+      },
       success: {
         title: "Kiểm tra email để xác minh tài khoản",
         bodyBeforeEmail: "Chúng tôi đã gửi một email xác minh đến ",
@@ -138,6 +167,7 @@ export const vi = {
         descriptionBase: "Bộ câu hỏi phỏng vấn thực tế",
         descriptionCategoryPrefix: "chủ đề",
         descriptionDifficultyPrefix: "độ khó",
+        descriptionTagPrefix: "tag",
         descriptionSuffix: "Luyện tập miễn phí, mở khoá đáp án chi tiết với gói Premium.",
         categoryDescription: (categoryName: string) =>
           `Bộ câu hỏi phỏng vấn chủ đề ${categoryName}. Luyện tập miễn phí, mở khoá đáp án chi tiết với gói Premium.`,
@@ -147,6 +177,7 @@ export const vi = {
       breadcrumbAriaLabel: "Breadcrumb",
       answerHeading: "Đáp án",
       noAnswerYet: "Câu hỏi này chưa có đáp án.",
+      revealAnswerCta: "Hiện đáp án",
       meta: {
         descriptionPrefix: "Câu hỏi phỏng vấn",
         descriptionCategoryInfix: "chủ đề",
@@ -177,6 +208,14 @@ export const vi = {
       searchLabel: "Tìm kiếm",
       searchPlaceholder: "Nhập từ khoá...",
       searchSubmit: "Tìm",
+      markStudyingLabel: "Đánh dấu đang ôn",
+      unmarkStudyingLabel: "Đang ôn chủ đề này",
+      tagLabel: "Tag",
+      allTags: "Tất cả tag",
+      tagsSelectedLabel: (n: number) => `${n} tag đã chọn`,
+      clearTagsLabel: "Xoá lọc",
+      activeTagsPrefix: "Tag:",
+      removeTagAriaLabel: (tag: string) => `Xoá tag ${tag}`,
     },
     pagination: {
       ariaLabel: "Phân trang",
@@ -185,10 +224,224 @@ export const vi = {
       pageOf: (page: number, totalPages: number) => `Trang ${page} / ${totalPages}`,
     },
   },
+  companies: {
+    list: {
+      pageHeading: "Danh bạ công ty",
+      pageIntro: "Tra cứu thông tin các công ty để chuẩn bị phỏng vấn tốt hơn.",
+      emptyTitle: "Không tìm thấy công ty phù hợp",
+      emptyBody: "Thử đổi từ khoá tìm kiếm.",
+      meta: {
+        titlePagePrefix: "trang",
+        description: "Danh bạ công ty phục vụ chuẩn bị phỏng vấn.",
+      },
+    },
+    detail: {
+      breadcrumbAriaLabel: "Breadcrumb",
+      meta: {
+        descriptionPrefix: "Thông tin công ty",
+      },
+      // Confirmed 2026-08-06 (BE-51/52) — all optional, no field renders
+      // when unset (FU-17 DoD).
+      employeeSizeRangeLabel: {
+        UNDER_50: "Dưới 50 nhân viên",
+        RANGE_50_200: "50–200 nhân viên",
+        RANGE_200_1000: "200–1.000 nhân viên",
+        RANGE_1000_5000: "1.000–5.000 nhân viên",
+        OVER_5000: "Trên 5.000 nhân viên",
+      } satisfies Record<EmployeeSizeRange, string>,
+      websiteLinkLabel: "Trang web công ty",
+      industriesAriaLabel: "Ngành nghề",
+    },
+    filters: {
+      formAriaLabel: "Tìm công ty",
+      searchLabel: "Tìm kiếm",
+      searchPlaceholder: "Nhập tên công ty...",
+      searchSubmit: "Tìm",
+    },
+    // FU-12 (BE-37/38/39) — unlimited reviews per user per company,
+    // pre-publish moderation (business-rule.md#company-reviews--moderation--
+    // confirmed-2026-08-04).
+    reviews: {
+      heading: "Đánh giá công ty",
+      emptyBody: "Chưa có đánh giá nào cho công ty này.",
+      ratingAriaLabel: (rating: number) => `${rating} trên 5 sao`,
+      status: {
+        PENDING: "Đang chờ duyệt",
+        REJECTED: "Bị từ chối",
+      },
+      adminReplyLabel: "Phản hồi từ quản trị viên",
+      deleteLabel: "Xoá",
+      reportLabel: "Báo cáo",
+      reportedLabel: "Đã báo cáo",
+      form: {
+        heading: "Viết đánh giá",
+        loginPromptBefore: "",
+        loginPromptLink: "Đăng nhập",
+        loginPromptAfter: " để viết đánh giá về công ty này.",
+        ratingLabel: "Đánh giá của bạn",
+        ratingStarAriaLabel: (value: number) => `${value} sao`,
+        contentLabel: "Nội dung",
+        contentPlaceholder: "Chia sẻ trải nghiệm làm việc của bạn...",
+        anonymousLabel: "Đăng ẩn danh",
+        submitLabel: "Gửi đánh giá",
+        submittedNotice: "Cảm ơn bạn! Đánh giá của bạn đang chờ quản trị viên duyệt.",
+      },
+    },
+  },
+  bookmarks: {
+    toggle: {
+      addLabel: "Lưu câu hỏi",
+      removeLabel: "Bỏ lưu câu hỏi",
+    },
+    list: {
+      pageTitle: "Câu hỏi đã lưu",
+      pageHeading: "Câu hỏi đã lưu",
+      pageIntro: "Danh sách câu hỏi bạn đã lưu để xem lại.",
+      loadingSrOnly: "Đang tải danh sách đã lưu…",
+      emptyTitle: "Bạn chưa lưu câu hỏi nào",
+      emptyBody: "Nhấn biểu tượng lưu trên một câu hỏi để thêm vào đây.",
+      browseQuestionsLink: "Xem danh sách câu hỏi",
+      errorTitle: "Không thể tải danh sách đã lưu",
+      errorBody: "Kiểm tra mạng và thử lại.",
+      signedOutTitle: "Đăng nhập để xem câu hỏi đã lưu",
+      signedOutBody: "Bạn cần đăng nhập để lưu và xem lại câu hỏi.",
+    },
+  },
+  // FU-17 (2026-08-06) — self-service displayName edit, confirmed optional
+  // and not part of registration.
+  profile: {
+    pageTitle: "Hồ sơ của bạn",
+    pageHeading: "Hồ sơ của bạn",
+    emailLabel: "Email",
+    displayNameLabel: "Tên hiển thị",
+    displayNameHint: "Hiển thị thay cho email ở những nơi công khai, ví dụ trên đánh giá công ty. Không bắt buộc.",
+    displayNamePlaceholder: "Chưa đặt tên hiển thị",
+    saveLabel: "Lưu thay đổi",
+    savingLabel: "Đang lưu…",
+    saveSuccess: "Đã lưu tên hiển thị.",
+    saveError: "Không thể lưu. Vui lòng thử lại.",
+    signedOutTitle: "Đăng nhập để xem hồ sơ",
+    signedOutBody: "Bạn cần đăng nhập để xem và chỉnh sửa hồ sơ.",
+  },
+  subscription: {
+    planName: {
+      MONTHLY: "Gói Tháng",
+      LIFETIME: "Gói Trọn đời",
+    } as Record<string, string>,
+    subscribe: {
+      pageTitle: "Nâng cấp Premium",
+      pageHeading: "Chọn gói Premium",
+      pageIntro: "Mở khoá toàn bộ đáp án chi tiết cho mọi câu hỏi phỏng vấn.",
+      loadingSrOnly: "Đang tải danh sách gói…",
+      errorTitle: "Không thể tải danh sách gói",
+      errorBody: "Kiểm tra mạng và thử lại.",
+      emptyTitle: "Hiện chưa có gói nào khả dụng",
+      lifetimeBadge: "Trọn đời, không bao giờ hết hạn",
+      recommendedBadge: "Phổ biến nhất",
+      freeTitle: "Miễn phí",
+      freePriceLabel: "0 đ",
+      freeDescription: "Đọc toàn bộ câu hỏi và câu hỏi miễn phí, không cần tài khoản.",
+      freeCta: "Xem câu hỏi miễn phí",
+      planDescription: {
+        MONTHLY: "Phù hợp để ôn nhanh trước một đợt phỏng vấn cụ thể.",
+        LIFETIME: "Trả một lần, dùng mãi mãi — không cần gia hạn.",
+      } as Record<string, string>,
+      paymentNote: "Thanh toán an toàn qua VNPay",
+      selectCta: "Chọn gói này",
+      selectCtaLoading: "Đang chuyển đến VNPay…",
+      signedOutTitle: "Đăng nhập để nâng cấp",
+      signedOutBody: "Bạn cần đăng nhập trước khi chọn gói Premium.",
+      alreadySubscribed: {
+        title: "Bạn đã là thành viên Premium",
+        bodyLifetime: "Gói Trọn đời của bạn không bao giờ hết hạn.",
+        bodyWithExpiry: (date: string) => `Gói hiện tại của bạn còn hiệu lực đến ${date}.`,
+      },
+      checkoutError: "Không thể bắt đầu thanh toán. Vui lòng thử lại.",
+    },
+    callback: {
+      pageTitle: "Đang xác nhận thanh toán",
+      confirmingSrOnly: "Đang xác nhận thanh toán…",
+      confirmingBody: "Đang xác nhận thanh toán với VNPay. Vui lòng đợi trong giây lát…",
+      successTitle: "Thanh toán thành công",
+      successBody: "Tài khoản của bạn đã được nâng cấp Premium.",
+      goToQuestionsLink: "Xem câu hỏi Premium",
+      pendingTitle: "Chưa nhận được xác nhận thanh toán",
+      pendingBody:
+        "Hệ thống chưa xác nhận được kết quả thanh toán từ VNPay. Nếu bạn đã thanh toán thành công, trang này sẽ tự cập nhật trong ít phút — nếu không, vui lòng thử lại.",
+      retryLink: "Thử lại",
+      backToSubscribeLink: "Quay lại chọn gói",
+      signedOutTitle: "Không xác định được phiên đăng nhập",
+      signedOutBody: "Đăng nhập lại để kiểm tra trạng thái thanh toán của bạn.",
+    },
+  },
   home: {
     siteDescription: "Luyện tập phỏng vấn với bộ câu hỏi thực tế theo từng chủ đề.",
-    heroBody: "Luyện tập phỏng vấn với bộ câu hỏi thực tế theo từng chủ đề. Trang danh sách câu hỏi đang được xây dựng.",
+    heroBody: "Luyện tập phỏng vấn với bộ câu hỏi thực tế theo từng chủ đề.",
+    browseQuestionsLink: "Xem câu hỏi",
     loginLink: "Đăng nhập",
     createAccountLink: "Tạo tài khoản",
+    eyebrow: "$ luyen-phong-van --topic=all --level=junior..senior",
+    heroHeadingBeforeMark: "Luyện phỏng vấn với câu hỏi thực tế, ",
+    heroHeadingMark: "có đáp án gợi ý",
+    heroSub:
+      "Duyệt câu hỏi phỏng vấn theo chủ đề và mức độ khó, tự trả lời trước, rồi đối chiếu với đáp án gợi ý — miễn phí đọc toàn bộ câu hỏi, mở khoá đáp án đầy đủ với gói trả phí.",
+    searchPlaceholder: "VD: event loop, React hooks, chuẩn hoá cơ sở dữ liệu...",
+    searchSubmit: "Tìm kiếm",
+    searchAriaLabel: "Tìm câu hỏi phỏng vấn",
+    flashcard: {
+      tagLabel: "CÂU HỎI #128",
+      category: "JavaScript",
+      questionBeforeMark: "Giải thích ",
+      questionMark: "Event Loop",
+      questionAfterMark: " hoạt động như thế nào?",
+      reviewedLabel: "Đã ôn tập 3 lần",
+    },
+    categoriesHeading: "Duyệt theo chủ đề",
+    categoriesCaption: "Chọn một chủ đề để bắt đầu luyện tập.",
+    categoriesQuestionCount: (total: number) => `(${total} câu hỏi)`,
+    categoriesViewAll: "Xem tất cả →",
+    benefits: [
+      {
+        title: "Luyện tập có định hướng",
+        body: "Lọc câu hỏi theo chủ đề và độ khó, tập trung đúng phần bạn còn yếu thay vì đọc tràn lan.",
+      },
+      {
+        title: "Đáp án gợi ý chi tiết",
+        body: "Mỗi câu hỏi Premium có đáp án gợi ý đầy đủ, giúp bạn biết mình đang thiếu điều gì.",
+      },
+      {
+        title: "Lưu lại để ôn tập",
+        body: "Đánh dấu câu hỏi bằng Bookmark để quay lại ôn tập trước ngày phỏng vấn.",
+      },
+    ],
+    howItWorksHeading: "Cách hoạt động",
+    steps: [
+      { title: "Chọn chủ đề và mức độ", body: "Duyệt danh mục câu hỏi hoặc tìm theo từ khoá." },
+      { title: "Tự trả lời trước", body: "Đọc câu hỏi và thử trả lời như trong buổi phỏng vấn thật." },
+      {
+        title: "Đối chiếu đáp án gợi ý",
+        body: "Câu hỏi miễn phí xem ngay; câu hỏi Premium mở khoá đáp án khi có gói trả phí.",
+      },
+    ],
+    ctaHeading: "Sẵn sàng luyện tập nghiêm túc hơn?",
+    ctaBody: "Mở khoá toàn bộ đáp án gợi ý với gói Premium.",
+    ctaLink: "Xem bảng giá",
+    faqHeading: "Câu hỏi thường gặp",
+    faq: [
+      {
+        question: "Tôi có cần trả phí để xem câu hỏi không?",
+        answer:
+          "Không. Toàn bộ nội dung câu hỏi luôn miễn phí xem, kể cả khi bạn chưa đăng nhập. Chỉ phần đáp án gợi ý của câu hỏi Premium mới yêu cầu gói trả phí.",
+      },
+      {
+        question: "Câu hỏi Premium khác gì câu hỏi thường?",
+        answer:
+          'Câu hỏi Premium hiển thị đầy đủ đề bài như bình thường, nhưng phần "Đáp án gợi ý" chỉ hiện ra khi tài khoản của bạn đang có gói còn hiệu lực.',
+      },
+      {
+        question: "Tôi thanh toán bằng phương thức nào?",
+        answer: "Thanh toán qua VNPay. Xem chi tiết các gói tại trang Bảng giá.",
+      },
+    ],
   },
 } as const;
