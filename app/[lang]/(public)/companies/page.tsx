@@ -59,7 +59,7 @@ export default async function CompaniesPage({ params, searchParams }: Props) {
   const search = await searchParams;
   const page = parsePage(search.page);
 
-  const result = await getCompanies({ q: search.q, page, pageSize: COMPANY_LIST_PAGE_SIZE });
+  const result = await getCompanies({ q: search.q, page, pageSize: COMPANY_LIST_PAGE_SIZE }, lang);
 
   return (
     <div className="min-h-full bg-bg pb-12 text-text">

@@ -11,12 +11,12 @@ const POLL_INTERVAL_MS = 2500;
 const MAX_WAIT_MS = 45_000;
 
 /**
- * The VNPay redirect landing here is never trusted as proof of payment on
+ * The MoMo redirect landing here is never trusted as proof of payment on
  * its own (docs/architecture/sequence-diagram.md: "the webhook, not the
  * redirect, is authoritative" — a user could close the tab, or the redirect
  * could be manipulated client-side). This polls GET /me/subscription
  * (reflecting the webhook's own write) until it confirms, rather than
- * reading any VNPay query param off this page's own URL.
+ * reading any MoMo query param off this page's own URL.
  *
  * Giving up after MAX_WAIT_MS is a real, expected outcome (webhook
  * delay/loss), not a failure — payment idempotency means the true state

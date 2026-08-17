@@ -25,7 +25,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     // Exclude: Next internals, static files, metadata files, and the two
-    // fixed-URL external callback targets (VNPay return, Google OAuth
+    // fixed-URL external callback targets (MoMo return, Google OAuth
     // callback) that must stay unprefixed — see tasks/frontend-user.md
     // FU-19's note on why those can't move under [lang].
     "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api|checkout/return|auth/google/callback).*)",

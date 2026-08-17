@@ -1,4 +1,4 @@
-import type { Difficulty, EmployeeSizeRange } from "@/lib/types";
+import type { Difficulty, EmployeeSizeRange, SubmissionStatus } from "@/lib/types";
 
 // All Vietnamese UI copy for frontend-user, namespaced by feature. Never
 // imported directly by components — go through "./index" (`text`), the one
@@ -11,6 +11,9 @@ export const vi = {
     companiesLink: "Công ty",
     subscribeLink: "Bảng giá",
     bookmarksLink: "Câu hỏi đã lưu",
+    contributeLink: "Đóng góp",
+    mySubmissionsLink: "Bài đã đóng góp",
+    notificationsLabel: "Thông báo",
     profileLink: "Hồ sơ",
     logoutLabel: "Đăng xuất",
     loginLink: "Đăng nhập",
@@ -176,8 +179,11 @@ export const vi = {
     detail: {
       breadcrumbAriaLabel: "Breadcrumb",
       answerHeading: "Đáp án",
+      referenceLinksHeading: "Tài liệu tham khảo",
       noAnswerYet: "Câu hỏi này chưa có đáp án.",
       revealAnswerCta: "Hiện đáp án",
+      freeBadge: "Miễn phí",
+      contributedByPrefix: "Đóng góp bởi",
       meta: {
         descriptionPrefix: "Câu hỏi phỏng vấn",
         descriptionCategoryInfix: "chủ đề",
@@ -193,6 +199,8 @@ export const vi = {
         gatedBodyLoggedOut: "Đăng nhập và nâng cấp gói Premium để xem đáp án đầy đủ.",
         upgradeCta: "Nâng cấp ngay",
         loginCta: "Đăng nhập",
+        unlockedBadge: "Đã mở khoá",
+        lockedBadge: "Khoá",
       },
     },
     filters: {
@@ -249,7 +257,6 @@ export const vi = {
         RANGE_1000_5000: "1.000–5.000 nhân viên",
         OVER_5000: "Trên 5.000 nhân viên",
       } satisfies Record<EmployeeSizeRange, string>,
-      websiteLinkLabel: "Trang web công ty",
       industriesAriaLabel: "Ngành nghề",
     },
     filters: {
@@ -262,6 +269,9 @@ export const vi = {
     // pre-publish moderation (business-rule.md#company-reviews--moderation--
     // confirmed-2026-08-04).
     reviews: {
+      // Same dev-console eyebrow convention as home.eyebrow — deliberately
+      // ASCII/command-style in both locales, not translated.
+      eyebrow: (count: number) => `$ reviews --count=${count}`,
       heading: "Đánh giá công ty",
       emptyBody: "Chưa có đánh giá nào cho công ty này.",
       ratingAriaLabel: (rating: number) => `${rating} trên 5 sao`,
@@ -273,11 +283,14 @@ export const vi = {
       deleteLabel: "Xoá",
       reportLabel: "Báo cáo",
       reportedLabel: "Đã báo cáo",
+      // Section heading above the write-review box — switches with login
+      // state, same as the design (docs/design/figma-export's WriteReviewCard).
+      shareExperienceHeading: "Chia sẻ trải nghiệm",
+      writeReviewHeading: "Viết đánh giá của bạn",
       form: {
-        heading: "Viết đánh giá",
-        loginPromptBefore: "",
-        loginPromptLink: "Đăng nhập",
-        loginPromptAfter: " để viết đánh giá về công ty này.",
+        loginPromptHeading: "Đăng nhập để viết đánh giá",
+        loginPromptBody: "Bạn cần đăng nhập để chia sẻ đánh giá về công ty này.",
+        loginPromptCta: "Đăng nhập",
         ratingLabel: "Đánh giá của bạn",
         ratingStarAriaLabel: (value: number) => `${value} sao`,
         contentLabel: "Nội dung",
@@ -323,6 +336,128 @@ export const vi = {
     signedOutTitle: "Đăng nhập để xem hồ sơ",
     signedOutBody: "Bạn cần đăng nhập để xem và chỉnh sửa hồ sơ.",
   },
+  // FU-23 (2026-08-13) — business-rule.md#user-contributed-questions--
+  // confirmed-2026-08-11, backed by BE-58/59/60.
+  contribute: {
+    pageTitle: "Đóng góp câu hỏi",
+    breadcrumbLabel: "Đóng góp câu hỏi",
+    heading: "Đóng góp câu hỏi",
+    intro:
+      "Câu hỏi của bạn sẽ được đội ngũ quản trị viên xem xét trước khi xuất bản. Tên hiển thị của bạn sẽ được ghi nhận công khai khi câu hỏi được duyệt.",
+    loginPromptHeading: "Đăng nhập để đóng góp câu hỏi",
+    loginPromptBody: "Bạn cần đăng nhập để gửi câu hỏi cho cộng đồng.",
+    loginPromptCta: "Đăng nhập",
+    form: {
+      titleLabel: "Tiêu đề câu hỏi",
+      titleHint: "Viết ngắn gọn, rõ ràng — sẽ hiển thị trong danh sách câu hỏi.",
+      titlePlaceholder: "Ví dụ: Giải thích sự khác biệt giữa BFS và DFS.",
+      contentLabel: "Nội dung câu hỏi",
+      contentHint: "Mô tả chi tiết câu hỏi, bối cảnh, ràng buộc nếu có.",
+      contentPlaceholder: "Viết nội dung câu hỏi đầy đủ ở đây...",
+      answerLabel: "Gợi ý đáp án",
+      answerHint: "Đáp án tham khảo của bạn. Quản trị viên có thể chỉnh sửa trước khi duyệt.",
+      answerPlaceholder: "Trình bày đáp án, bao gồm phân tích độ phức tạp nếu áp dụng...",
+      consentNote: "Bằng cách gửi, bạn đồng ý cho phép nền tảng xuất bản câu hỏi này (sau khi duyệt) và ghi nhận tên hiển thị của bạn.",
+      resetLabel: "Đặt lại",
+      submitLabel: "Gửi câu hỏi",
+      submittingLabel: "Đang gửi...",
+    },
+    displayNameRequired: {
+      title: "Bạn chưa đặt tên hiển thị",
+      body: "Tên hiển thị sẽ được ghi nhận công khai khi câu hỏi được duyệt. Hãy đặt tên trước khi đóng góp.",
+      cta: "Cài đặt hồ sơ",
+    },
+    genericError: "Không thể gửi câu hỏi. Vui lòng thử lại.",
+    success: {
+      statusLabel: "Đã gửi — chờ duyệt",
+      heading: "Đã gửi — chờ duyệt",
+      body: "Câu hỏi của bạn đã được gửi thành công và đang chờ đội ngũ quản trị viên xét duyệt. Bạn sẽ nhận thông báo khi có kết quả.",
+      viewSubmissionsCta: "Xem câu hỏi đã gửi",
+      submitAnotherCta: "Gửi câu hỏi khác",
+    },
+  },
+  mySubmissions: {
+    pageTitle: "Câu hỏi đã đóng góp",
+    breadcrumbLabel: "Câu hỏi đã đóng góp",
+    heading: "Câu hỏi đã đóng góp",
+    loadingSrOnly: "Đang tải câu hỏi đã đóng góp…",
+    signedOutTitle: "Đăng nhập để xem câu hỏi đã đóng góp",
+    signedOutBody: "Bạn cần đăng nhập để xem trạng thái câu hỏi đã gửi.",
+    errorTitle: "Không thể tải danh sách",
+    errorBody: "Kiểm tra mạng và thử lại.",
+    emptyTitle: "Chưa có câu hỏi nào",
+    emptyBody: "Bạn chưa đóng góp câu hỏi nào. Hãy bắt đầu chia sẻ kiến thức của mình với cộng đồng.",
+    emptyCta: "Đóng góp câu hỏi đầu tiên",
+    contributeMoreCta: "Đóng góp thêm",
+    status: {
+      PENDING: "Chờ duyệt",
+      APPROVED: "Đã duyệt",
+      REJECTED: "Từ chối",
+    } as Record<SubmissionStatus, string>,
+    rejectionReasonLabel: "Lý do từ chối",
+    editLabel: "Chỉnh sửa",
+    saveLabel: "Lưu",
+    savingLabel: "Đang lưu...",
+    cancelLabel: "Huỷ",
+    withdrawLabel: "Rút lại",
+    viewPublishedCta: "Xem câu hỏi đã đăng",
+    lockedLabel: "Đã khoá",
+    // Most likely real cause: an admin approved/rejected this exact
+    // submission while the edit form was open (SUBMISSION_NOT_PENDING) —
+    // worded to cover that race without being wrong for a plain network
+    // failure either.
+    actionError: "Không thể lưu thay đổi. Câu hỏi có thể vừa được xét duyệt — hãy tải lại trang.",
+    summary: (approved: number, pending: number, rejected: number) =>
+      `${approved} đã duyệt · ${pending} đang chờ · ${rejected} từ chối`,
+  },
+  // FU-13 (2026-08-13) — backed by BE-41. `type` is free-text server-side,
+  // message() falls back to a generic line for any type this dictionary
+  // doesn't recognize yet, rather than rendering nothing.
+  notifications: {
+    heading: "Thông báo",
+    loadingSrOnly: "Đang tải thông báo…",
+    errorTitle: "Không thể tải thông báo",
+    errorBody: "Kiểm tra mạng và thử lại.",
+    emptyTitle: "Chưa có thông báo nào",
+    emptyBody: "Thông báo về tài khoản và gói đăng ký của bạn sẽ hiển thị ở đây.",
+    unreadBadgeAriaLabel: (count: number) => `${count} thông báo chưa đọc`,
+    message: (type: string, payload: Record<string, unknown>): string => {
+      const planLabel = (planName: unknown) =>
+        typeof planName === "string" ? (vi.subscription.planName[planName] ?? planName) : "";
+      switch (type) {
+        case "UserRegistered":
+          return "Chào mừng bạn đến với DevDeck! Tài khoản của bạn đã được tạo thành công.";
+        case "SubscriptionActivated":
+          return `${planLabel(payload.planName)} đã được kích hoạt thành công.`;
+        case "PaymentFailed":
+          return `Thanh toán cho ${planLabel(payload.planName)} không thành công. Vui lòng thử lại.`;
+        default:
+          return "Bạn có một thông báo mới.";
+      }
+    },
+    settingsLinkLabel: "Cài đặt thông báo",
+    // FU-14 (2026-08-13) — the "Preference categories" split confirmed in
+    // business-rule.md: Giao dịch (never muteable) vs. Nhắc nhở (toggleable).
+    preferences: {
+      pageTitle: "Cài đặt thông báo",
+      pageHeading: "Cài đặt thông báo",
+      pageIntro: "Chọn loại thông báo bạn muốn nhận qua email.",
+      loadingSrOnly: "Đang tải cài đặt thông báo…",
+      errorTitle: "Không thể tải cài đặt thông báo",
+      errorBody: "Kiểm tra mạng và thử lại.",
+      signedOutTitle: "Đăng nhập để xem cài đặt thông báo",
+      signedOutBody: "Bạn cần đăng nhập để xem và chỉnh sửa cài đặt thông báo.",
+      transactionalGroupTitle: "Giao dịch",
+      transactionalGroupBody: "Tạo tài khoản, kích hoạt gói, thanh toán thất bại.",
+      transactionalGroupNote: "Luôn bật — bảo vệ bạn khỏi bỏ lỡ thông tin quan trọng về tài khoản hoặc thanh toán.",
+      remindersGroupTitle: "Nhắc nhở",
+      remindersGroupBody: "Nhắc gia hạn gói trước khi hết hạn.",
+      remindersToggleLabel: "Nhận email nhắc gia hạn",
+      savingLabel: "Đang lưu…",
+      savedLabel: "Đã lưu",
+      saveError: "Không thể lưu. Vui lòng thử lại.",
+    },
+  },
   subscription: {
     planName: {
       MONTHLY: "Gói Tháng",
@@ -332,23 +467,47 @@ export const vi = {
       pageTitle: "Nâng cấp Premium",
       pageHeading: "Chọn gói Premium",
       pageIntro: "Mở khoá toàn bộ đáp án chi tiết cho mọi câu hỏi phỏng vấn.",
+      // 2026-08-18 — shown instead of the plan selector while
+      // PAYMENTS_ENABLED=false (lib/constants/app.ts).
+      comingSoonTitle: "Gói Premium sắp ra mắt",
+      comingSoonBody:
+        "Chúng tôi đang hoàn thiện tính năng thanh toán. Trong lúc chờ, toàn bộ nội dung — kể cả đáp án của câu hỏi Premium — đang mở miễn phí cho mọi người.",
+      comingSoonCta: "Xem câu hỏi",
       loadingSrOnly: "Đang tải danh sách gói…",
       errorTitle: "Không thể tải danh sách gói",
       errorBody: "Kiểm tra mạng và thử lại.",
       emptyTitle: "Hiện chưa có gói nào khả dụng",
-      lifetimeBadge: "Trọn đời, không bao giờ hết hạn",
+      perPeriodSuffix: "/ tháng",
+      oneTimeSuffix: "1 lần duy nhất",
       recommendedBadge: "Phổ biến nhất",
       freeTitle: "Miễn phí",
       freePriceLabel: "0 đ",
       freeDescription: "Đọc toàn bộ câu hỏi và câu hỏi miễn phí, không cần tài khoản.",
       freeCta: "Xem câu hỏi miễn phí",
+      // Đều là tính năng có thật, không cần Premium: tổng số câu hỏi miễn
+      // phí (thực tế, lấy từ API), đánh dấu đang ôn/bookmark (FU-22), viết
+      // đánh giá công ty (BE-36/37) — không phải "progress tracking" kiểu
+      // dashboard chưa có trong sản phẩm.
+      freeBenefits: (count: number) => [
+        `Truy cập toàn bộ ${count} câu hỏi miễn phí`,
+        "Đánh dấu chủ đề đang ôn và lưu câu hỏi yêu thích",
+        "Viết đánh giá công ty",
+      ],
       planDescription: {
         MONTHLY: "Phù hợp để ôn nhanh trước một đợt phỏng vấn cụ thể.",
         LIFETIME: "Trả một lần, dùng mãi mãi — không cần gia hạn.",
       } as Record<string, string>,
-      paymentNote: "Thanh toán an toàn qua VNPay",
+      // Quyền lợi thực tế mà Premium mở khoá (business-rule.md#premium-gating,
+      // #Premium-content-leak) — giống nhau cho cả hai gói trả phí, vì cả hai
+      // đều cấp cùng một quyền, chỉ khác giá/thời hạn.
+      benefits: [
+        "Mở khoá đáp án chi tiết cho mọi câu hỏi, kể cả câu hỏi Premium",
+        "Xem bình luận và đánh giá trên các câu hỏi Premium",
+        "Áp dụng cho toàn bộ chủ đề phỏng vấn",
+      ],
+      paymentNote: "Thanh toán an toàn qua MoMo",
       selectCta: "Chọn gói này",
-      selectCtaLoading: "Đang chuyển đến VNPay…",
+      selectCtaLoading: "Đang chuyển đến MoMo…",
       signedOutTitle: "Đăng nhập để nâng cấp",
       signedOutBody: "Bạn cần đăng nhập trước khi chọn gói Premium.",
       alreadySubscribed: {
@@ -361,13 +520,13 @@ export const vi = {
     callback: {
       pageTitle: "Đang xác nhận thanh toán",
       confirmingSrOnly: "Đang xác nhận thanh toán…",
-      confirmingBody: "Đang xác nhận thanh toán với VNPay. Vui lòng đợi trong giây lát…",
+      confirmingBody: "Đang xác nhận thanh toán với MoMo. Vui lòng đợi trong giây lát…",
       successTitle: "Thanh toán thành công",
       successBody: "Tài khoản của bạn đã được nâng cấp Premium.",
       goToQuestionsLink: "Xem câu hỏi Premium",
       pendingTitle: "Chưa nhận được xác nhận thanh toán",
       pendingBody:
-        "Hệ thống chưa xác nhận được kết quả thanh toán từ VNPay. Nếu bạn đã thanh toán thành công, trang này sẽ tự cập nhật trong ít phút — nếu không, vui lòng thử lại.",
+        "Hệ thống chưa xác nhận được kết quả thanh toán từ MoMo. Nếu bạn đã thanh toán thành công, trang này sẽ tự cập nhật trong ít phút — nếu không, vui lòng thử lại.",
       retryLink: "Thử lại",
       backToSubscribeLink: "Quay lại chọn gói",
       signedOutTitle: "Không xác định được phiên đăng nhập",
@@ -383,8 +542,11 @@ export const vi = {
     eyebrow: "$ luyen-phong-van --topic=all --level=junior..senior",
     heroHeadingBeforeMark: "Luyện phỏng vấn với câu hỏi thực tế, ",
     heroHeadingMark: "có đáp án gợi ý",
+    // 2026-08-18 — accurate while PREMIUM_GATING_ENABLED=false (backend
+    // env.ts): everything, including Premium answers, is free right now.
+    // Revert alongside that flag.
     heroSub:
-      "Duyệt câu hỏi phỏng vấn theo chủ đề và mức độ khó, tự trả lời trước, rồi đối chiếu với đáp án gợi ý — miễn phí đọc toàn bộ câu hỏi, mở khoá đáp án đầy đủ với gói trả phí.",
+      "Duyệt câu hỏi phỏng vấn theo chủ đề và mức độ khó, tự trả lời trước, rồi đối chiếu với đáp án gợi ý — toàn bộ nội dung, kể cả câu hỏi Premium, đang mở miễn phí.",
     searchPlaceholder: "VD: event loop, React hooks, chuẩn hoá cơ sở dữ liệu...",
     searchSubmit: "Tìm kiếm",
     searchAriaLabel: "Tìm câu hỏi phỏng vấn",
@@ -420,7 +582,7 @@ export const vi = {
       { title: "Tự trả lời trước", body: "Đọc câu hỏi và thử trả lời như trong buổi phỏng vấn thật." },
       {
         title: "Đối chiếu đáp án gợi ý",
-        body: "Câu hỏi miễn phí xem ngay; câu hỏi Premium mở khoá đáp án khi có gói trả phí.",
+        body: "Xem đáp án gợi ý ngay — kể cả câu hỏi Premium, hiện đang mở miễn phí cho mọi người.",
       },
     ],
     ctaHeading: "Sẵn sàng luyện tập nghiêm túc hơn?",
@@ -429,18 +591,21 @@ export const vi = {
     faqHeading: "Câu hỏi thường gặp",
     faq: [
       {
+        // 2026-08-18 — accurate while PREMIUM_GATING_ENABLED=false
+        // (backend/src/shared/config/env.ts): payment isn't live yet, so
+        // nothing is actually paywalled. Revert alongside that flag.
         question: "Tôi có cần trả phí để xem câu hỏi không?",
         answer:
-          "Không. Toàn bộ nội dung câu hỏi luôn miễn phí xem, kể cả khi bạn chưa đăng nhập. Chỉ phần đáp án gợi ý của câu hỏi Premium mới yêu cầu gói trả phí.",
+          "Không. Toàn bộ nội dung câu hỏi, kể cả đáp án gợi ý của câu hỏi Premium, hiện đang mở miễn phí cho mọi người trong giai đoạn ra mắt.",
       },
       {
         question: "Câu hỏi Premium khác gì câu hỏi thường?",
         answer:
-          'Câu hỏi Premium hiển thị đầy đủ đề bài như bình thường, nhưng phần "Đáp án gợi ý" chỉ hiện ra khi tài khoản của bạn đang có gói còn hiệu lực.',
+          'Câu hỏi Premium thường đi kèm đáp án chi tiết hơn, có thể có code demo hoặc ghi chú "khi nào dùng cái nào". Sau này khi ra mắt gói trả phí, phần đáp án này sẽ yêu cầu tài khoản có gói còn hiệu lực — hiện tại vẫn đang mở miễn phí.',
       },
       {
-        question: "Tôi thanh toán bằng phương thức nào?",
-        answer: "Thanh toán qua VNPay. Xem chi tiết các gói tại trang Bảng giá.",
+        question: "Gói trả phí (Premium) khi nào ra mắt?",
+        answer: "Chúng tôi đang hoàn thiện tính năng thanh toán qua MoMo. Trong lúc chờ, bạn có thể xem toàn bộ nội dung miễn phí.",
       },
     ],
   },

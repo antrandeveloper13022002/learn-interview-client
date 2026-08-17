@@ -42,7 +42,7 @@ export async function generateMetadata({ params: paramsPromise, searchParams }: 
   const page = parsePage(params.page);
   const difficulty = parseDifficulty(params.difficulty);
   const tags = parseTags(params.tag);
-  const categories = await getCategories();
+  const categories = await getCategories(lang);
   const category = params.category ? categories.find((c) => c.slug === params.category) : undefined;
 
   const titleParts: string[] = [text.questions.list.pageHeading];
@@ -90,20 +90,23 @@ export default async function QuestionsPage({ params: paramsPromise, searchParam
   const premium = parsePremium(params.premium);
   const tags = parseTags(params.tag);
 
-  const [categories, tagOptions] = await Promise.all([getCategories(), getQuestionTags()]);
+  const [categories, tagOptions] = await Promise.all([getCategories(lang), getQuestionTags()]);
   const category = params.category ? categories.find((c) => c.slug === params.category) : undefined;
 
   const [result, questionTotals] = await Promise.all([
-    getQuestions({
-      categoryId: category?.id,
-      difficulty,
-      isPremium: premium,
-      tag: tags,
-      q: params.q,
-      page,
-      pageSize: QUESTION_LIST_PAGE_SIZE,
-    }),
-    getQuestions({ pageSize: 1 }),
+    getQuestions(
+      {
+        categoryId: category?.id,
+        difficulty,
+        isPremium: premium,
+        tag: tags,
+        q: params.q,
+        page,
+        pageSize: QUESTION_LIST_PAGE_SIZE,
+      },
+      lang,
+    ),
+    getQuestions({ pageSize: 1 }, lang),
   ]);
 
   const startIndex = (result.page - 1) * result.pageSize;
@@ -112,7 +115,7 @@ export default async function QuestionsPage({ params: paramsPromise, searchParam
 
   return (
     <div className="min-h-full bg-bg text-text">
-      <div className="mx-auto flex w-full max-w-6xl">
+      <div className="mx-auto flex w-full max-w-7xl">
         <TopicSidebar
           categories={categories}
           totalQuestionCount={questionTotals.total}

@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { apiServerBaseUrl } from "@/lib/env";
 import type { ApiErrorBody } from "@/lib/types";
 
 /**
@@ -23,7 +23,7 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
+  const res = await fetch(`${apiServerBaseUrl}${path}`, {
     ...init,
     credentials: "include",
     headers: {

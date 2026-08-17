@@ -4,14 +4,18 @@ import type { QuestionSummary } from "@/lib/types";
 
 export const bookmarksApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getMyBookmarks: builder.query<QuestionSummary[], void>({
-      query: () => API_ROUTES.myBookmarks,
+    // US-50/51 — `lang` is part of the query arg (not just appended to the
+    // URL) so RTK Query caches per-locale; every caller passes the current
+    // page's locale (useLocale()), so callers on the same page still dedupe
+    // into one network request, same as before this param existed.
+    getMyBookmarks: builder.query<QuestionSummary[], { lang: string }>({
+      query: ({ lang }) => `${API_ROUTES.myBookmarks}?lang=${lang}`,
       providesTags: (result) =>
         result
           ? [...result.map((q) => ({ type: "Bookmarks" as const, id: q.id })), { type: "Bookmarks" as const, id: "LIST" }]
           : [{ type: "Bookmarks" as const, id: "LIST" }],
     }),
-    addBookmark: builder.mutation<void, QuestionSummary>({
+    addBookmark: builder.mutation<void, QuestionSummary & { lang: string }>({
       query: (question) => ({ url: API_ROUTES.bookmark(question.id), method: "POST" }),
       // Optimistic: the backend write is idempotent (composite-PK
       // upsert/delete — bookmark-idempotency.test.ts), so a duplicate
@@ -19,9 +23,9 @@ export const bookmarksApi = api.injectEndpoints({
       // cache immediately (rather than waiting on invalidatesTags + a
       // refetch) is what makes the toggle feel instant instead of lagging
       // behind a real network round trip to Supabase.
-      async onQueryStarted(question, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ lang, ...question }, { dispatch, queryFulfilled }) {
         const patch = dispatch(
-          bookmarksApi.util.updateQueryData("getMyBookmarks", undefined, (draft) => {
+          bookmarksApi.util.updateQueryData("getMyBookmarks", { lang }, (draft) => {
             if (!draft.some((q) => q.id === question.id)) draft.push(question);
           }),
         );
@@ -32,11 +36,11 @@ export const bookmarksApi = api.injectEndpoints({
         }
       },
     }),
-    removeBookmark: builder.mutation<void, string>({
-      query: (questionId) => ({ url: API_ROUTES.bookmark(questionId), method: "DELETE" }),
-      async onQueryStarted(questionId, { dispatch, queryFulfilled }) {
+    removeBookmark: builder.mutation<void, { questionId: string; lang: string }>({
+      query: ({ questionId }) => ({ url: API_ROUTES.bookmark(questionId), method: "DELETE" }),
+      async onQueryStarted({ questionId, lang }, { dispatch, queryFulfilled }) {
         const patch = dispatch(
-          bookmarksApi.util.updateQueryData("getMyBookmarks", undefined, (draft) => {
+          bookmarksApi.util.updateQueryData("getMyBookmarks", { lang }, (draft) => {
             const index = draft.findIndex((q) => q.id === questionId);
             if (index !== -1) draft.splice(index, 1);
           }),

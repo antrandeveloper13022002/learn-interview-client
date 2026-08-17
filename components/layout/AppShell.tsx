@@ -51,7 +51,7 @@ type Props = {
  * Shared `<html>/<body>` shell, extracted so it can back **two** Next.js
  * root layouts (app/[lang]/layout.tsx and app/(external)/layout.tsx) — the
  * "multiple root layouts" pattern Next.js documents for exactly this case:
- * a couple of routes (VNPay return, Google OAuth callback) must keep fixed,
+ * a couple of routes (MoMo return, Google OAuth callback) must keep fixed,
  * unprefixed URLs outside `[lang]` (see tasks/frontend-user.md FU-19), so
  * they can't share `[lang]`'s own layout tree, but still need the same
  * ReduxProvider/Header/Footer/fonts/theme-script every other page gets.

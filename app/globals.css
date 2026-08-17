@@ -146,23 +146,33 @@
   --color-focus-ring: var(--focus-ring);
 }
 
-* {
-  border-color: var(--color-border);
+/* Tailwind v4's own recommended default-border-color shim (matches the
+   pre-v4 global border-color default) — must live in `@layer base`, not as
+   a bare rule: unlayered CSS outranks every `@layer utilities` rule
+   regardless of specificity, so a bare `* { border-color }` here silently
+   wins over *every* `border-{color}` utility in the app (e.g.
+   `border-marker-600`), always rendering the default border-color no
+   matter what color utility is applied. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 }
 
-/* Deliberately NOT theme-aware (fixed light values, ~ same as the old
-   Geist-era defaults): FU-16 only re-skinned Header/Footer/the homepage so
-   far. Several other pages hardcode `bg-white` cards with no explicit text
-   color, inheriting whatever body sets — if body's color/bg followed
-   [data-theme] globally, those pages would go invisible-text-on-white the
-   moment dark mode is toggled, even though nobody redesigned them yet. Every
-   component this pass DID redesign sets its own colors explicitly via the
-   --color-* tokens (never relies on inheriting from body), so this fixed
-   default doesn't limit them — see Header's `.site-header`/Footer's `bg-bg`
-   /page.tsx's wrapper for how they opt in independently of body. */
+/* Theme-aware since 2026-08-13 — was deliberately fixed-light at FU-16
+   time (some pages still hardcoded unthemed `bg-white` cards then, so
+   following [data-theme] here would've made them invisible-text-on-white
+   in dark mode). That's no longer true: every page now sets its own colors
+   explicitly via the --color-* tokens (grep confirms no remaining
+   `bg-white` usage anywhere in app/ or components/). Following the theme
+   here is what fixes the real bug this was found for: a short-content page
+   (e.g. an empty bookmarks/my-submissions list) doesn't reliably fill
+   `<main>`'s full flex-allocated height via its own `min-h-full` wrapper,
+   leaving a gap below it — that gap now matches the current theme instead
+   of always rendering pure white, in either mode. */
 body {
-  background: var(--paper-0);
-  color: var(--ink-950);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-body), "Segoe UI", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

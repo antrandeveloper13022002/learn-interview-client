@@ -6,6 +6,12 @@ export type SubscriptionPlan = {
   code: string;
   name: string;
   priceVnd: number;
+  // Meaningful only when currency is "USD" (BE-53) — the VND rows carry
+  // priceUsdCents: null, the USD rows carry priceVnd: 0. See
+  // business-rule.md#subscription: USD plans are display-only until a
+  // USD-capable PaymentProvider exists.
+  priceUsdCents: number | null;
+  currency: "VND" | "USD";
   isLifetime: boolean;
 };
 

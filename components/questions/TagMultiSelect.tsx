@@ -51,7 +51,10 @@ export function TagMultiSelect({ options, selected, onToggle, onClear }: TagMult
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className={`flex min-h-11 w-full min-w-40 items-center justify-between gap-2 rounded-md border px-3 text-left focus-visible:ring-2 focus-visible:ring-marker-500 focus-visible:outline-none ${
-          hasActive ? "border-marker-500 bg-marker-100 text-text" : "border-border bg-surface text-text-muted"
+          // bg-wash-bg, not bg-marker-100: marker-100 never re-themes for
+          // dark mode (see globals.css), so paired with text-text it's
+          // unreadable there.
+          hasActive ? "border-marker-500 bg-wash-bg text-text" : "border-border bg-surface text-text-muted"
         }`}
       >
         <span className={hasActive ? "font-medium text-text" : ""}>{label}</span>
@@ -70,7 +73,7 @@ export function TagMultiSelect({ options, selected, onToggle, onClear }: TagMult
                     role="checkbox"
                     aria-checked={checked}
                     onClick={() => onToggle(opt.name)}
-                    className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-sm text-text hover:bg-marker-100"
+                    className="flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-left text-sm text-text hover:bg-wash-bg"
                   >
                     <span
                       className={`flex size-4 shrink-0 items-center justify-center rounded border-2 ${

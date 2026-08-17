@@ -9,8 +9,9 @@ import { useAppSelector } from "@/lib/redux/hooks";
 import { useLogoutMutation } from "@/lib/redux/authApi";
 import { PAGE_ROUTES } from "@/lib/routes";
 import { localizedPath } from "@/lib/routes/locale";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, PAYMENTS_ENABLED } from "@/lib/constants";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { MenuIcon, CloseIcon } from "@/components/icons";
 
 export function Header() {
@@ -27,17 +28,21 @@ export function Header() {
     { href: PAGE_ROUTES.home, label: text.header.homeLink },
     { href: PAGE_ROUTES.questions, label: text.header.questionsLink },
     { href: PAGE_ROUTES.companies, label: text.header.companiesLink },
-    { href: PAGE_ROUTES.subscribe, label: text.header.subscribeLink },
+    ...(PAYMENTS_ENABLED ? [{ href: PAGE_ROUTES.subscribe, label: text.header.subscribeLink }] : []),
+    { href: PAGE_ROUTES.contribute, label: text.header.contributeLink },
   ];
 
   return (
     <header className="site-header sticky top-0 z-40 border-b border-border">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
-        <Link href={PAGE_ROUTES.home} className="font-display text-lg font-bold tracking-tight text-text hover:text-marker-700">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 md:px-6">
+        <Link
+          href={PAGE_ROUTES.home}
+          className="shrink-0 font-display text-lg font-bold tracking-tight text-text hover:text-marker-700"
+        >
           {APP_NAME}
         </Link>
 
-        <nav aria-label={text.header.navAriaLabel} className="hidden items-center gap-6 md:flex">
+        <nav aria-label={text.header.navAriaLabel} className="hidden items-center gap-5 lg:gap-6 xl:flex">
           {navLinks.map((link) => {
             const isCurrent = pathname === localizedPath(lang, link.href);
             return (
@@ -45,7 +50,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 aria-current={isCurrent ? "page" : undefined}
-                className={`text-[0.9375rem] font-medium ${isCurrent ? "text-text" : "text-text-muted hover:text-text"}`}
+                className={`whitespace-nowrap text-[0.9375rem] font-medium ${isCurrent ? "text-text" : "text-text-muted hover:text-text"}`}
               >
                 {link.label}
               </Link>
@@ -53,21 +58,25 @@ export function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 lg:gap-3">
           <ThemeToggle />
+          <NotificationBell />
 
           {isBootstrapped && accessToken && user ? (
-            <div className="hidden items-center gap-3 sm:flex">
-              <Link href={PAGE_ROUTES.bookmarks} className="text-[0.9375rem] font-medium text-text-muted hover:text-text">
+            <div className="hidden items-center gap-2 lg:gap-3 xl:flex">
+              <Link href={PAGE_ROUTES.bookmarks} className="whitespace-nowrap text-[0.9375rem] font-medium text-text-muted hover:text-text">
                 {text.header.bookmarksLink}
               </Link>
-              <Link href={PAGE_ROUTES.profile} className="text-[0.9375rem] font-medium text-text-muted hover:text-text">
+              <Link href={PAGE_ROUTES.mySubmissions} className="whitespace-nowrap text-[0.9375rem] font-medium text-text-muted hover:text-text">
+                {text.header.mySubmissionsLink}
+              </Link>
+              <Link href={PAGE_ROUTES.profile} className="whitespace-nowrap text-[0.9375rem] font-medium text-text-muted hover:text-text">
                 {text.header.profileLink}
               </Link>
               <button
                 type="button"
                 onClick={() => logout()}
-                className="min-h-11 rounded-md border border-border px-4 text-sm font-semibold text-text shadow-(--shadow-border) hover:shadow-(--shadow-border-hover)"
+                className="min-h-11 shrink-0 whitespace-nowrap rounded-md border border-border px-4 text-sm font-semibold text-text shadow-(--shadow-border) hover:shadow-(--shadow-border-hover)"
               >
                 {text.header.logoutLabel}
               </button>
@@ -75,7 +84,7 @@ export function Header() {
           ) : (
             <Link
               href={PAGE_ROUTES.login}
-              className="hidden min-h-11 items-center rounded-md border border-border px-4 text-sm font-semibold text-text shadow-(--shadow-border) hover:shadow-(--shadow-border-hover) sm:inline-flex"
+              className="hidden min-h-11 shrink-0 items-center whitespace-nowrap rounded-md border border-border px-4 text-sm font-semibold text-text shadow-(--shadow-border) hover:shadow-(--shadow-border-hover) xl:inline-flex"
             >
               {text.header.loginLink}
             </Link>
@@ -86,7 +95,7 @@ export function Header() {
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            className="inline-grid min-h-11 min-w-11 place-items-center rounded-md text-text-muted hover:bg-border hover:text-text md:hidden"
+            className="inline-grid min-h-11 min-w-11 shrink-0 place-items-center rounded-md text-text-muted hover:bg-border hover:text-text xl:hidden"
           >
             {menuOpen ? <CloseIcon className="size-5" /> : <MenuIcon className="size-5" />}
             <span className="sr-only">{menuOpen ? text.header.closeMenuLabel : text.header.openMenuLabel}</span>
@@ -95,7 +104,7 @@ export function Header() {
       </div>
 
       {menuOpen && (
-        <div id="mobile-menu" className="border-t border-border px-4 py-4 md:hidden">
+        <div id="mobile-menu" className="border-t border-border px-4 py-4 xl:hidden">
           <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <li key={link.href}>
@@ -117,6 +126,13 @@ export function Header() {
                     className="block rounded-md px-2 py-3 font-medium text-text hover:bg-border"
                   >
                     {text.header.bookmarksLink}
+                  </Link>
+                  <Link
+                    href={PAGE_ROUTES.mySubmissions}
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-md px-2 py-3 font-medium text-text hover:bg-border"
+                  >
+                    {text.header.mySubmissionsLink}
                   </Link>
                   <Link
                     href={PAGE_ROUTES.profile}

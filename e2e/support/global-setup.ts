@@ -17,7 +17,16 @@ async function seedFixtures(): Promise<void> {
 // navigations hit already-compiled routes. Errors ignored — this is only
 // a warm-up, the tests themselves are the real assertion.
 async function warmUpRoutes(): Promise<void> {
-  const routes = ["/vi", "/vi/login", "/vi/register", "/vi/questions", "/vi/bookmarks", "/vi/verify-email"];
+  const routes = [
+    "/vi",
+    "/vi/login",
+    "/vi/register",
+    "/vi/questions",
+    "/vi/bookmarks",
+    "/vi/verify-email",
+    "/vi/contribute",
+    "/vi/my-submissions",
+  ];
   for (const route of routes) {
     await fetch(`http://localhost:3000${route}`).catch(() => undefined);
   }

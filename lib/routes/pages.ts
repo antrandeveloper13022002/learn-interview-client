@@ -16,10 +16,15 @@ export const PAGE_ROUTES = {
   companyDetail: (slug: string) => `/companies/${slug}`,
   bookmarks: "/bookmarks",
   profile: "/profile",
+  contribute: "/contribute",
+  mySubmissions: "/my-submissions",
+  notificationPreferences: "/notification-preferences",
   subscribe: "/subscribe",
-  /** Must match the backend's `VNPAY_RETURN_URL` env value exactly — VNPay
-   * redirects here after checkout regardless of what route this frontend
-   * actually names its callback page (same class of gotcha as FU-10's
-   * Google OAuth callback path note). */
+  /** Must match the backend's `MOMO_REDIRECT_URL` env value exactly (was
+   * `VNPAY_RETURN_URL` before 2026-08-17 — see
+   * vision.md#phase-amendment--2026-08-17) — MoMo redirects here after
+   * checkout regardless of what route this frontend actually names its
+   * callback page (same class of gotcha as FU-10's Google OAuth callback
+   * path note). */
   checkoutReturn: "/checkout/return",
 } as const;

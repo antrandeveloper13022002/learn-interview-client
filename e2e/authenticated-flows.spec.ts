@@ -77,6 +77,43 @@ test.describe("Authenticated user flows (bookmarks, company reviews, study marks
     await expect(page.getByRole("button", { name: "Đã báo cáo" }).first()).toBeDisabled();
   });
 
+  test("contributing a question is pending in My submissions, then editable and withdrawable (FU-23)", async () => {
+    const title = `E2E question ${Date.now()}`;
+
+    await page.goto("/vi/contribute");
+    await page.getByLabel("Tiêu đề câu hỏi").fill(title);
+    await page.getByLabel("Nội dung câu hỏi").fill("E2E submission content, filled by Playwright.");
+    await page.getByLabel("Gợi ý đáp án").fill("E2E submission suggested answer, filled by Playwright.");
+    await page.getByRole("button", { name: "Gửi câu hỏi" }).click();
+
+    await expect(page.getByRole("status")).toContainText("Đã gửi — chờ duyệt");
+    await page.getByRole("link", { name: "Xem câu hỏi đã gửi" }).click();
+    await page.waitForURL(/\/vi\/my-submissions$/);
+
+    // Positional, not `hasText`-filtered: findSubmissionsForUser orders
+    // newest-first (submission.repository.ts), so the row just created is
+    // always the first <li> — a `hasText` filter would stop matching the
+    // moment "Chỉnh sửa" swaps the title <p> into an <input> (an <input>'s
+    // `value` isn't part of its element's textContent, so the live filter
+    // loses its match mid-test even though the row never left the page).
+    // "main ul li" (not bare "li"): the breadcrumb above the list is an
+    // <ol>, not a <ul> — this excludes it without needing a hasText filter.
+    const card = page.locator("main ul li").first();
+    await expect(card).toContainText(title);
+    await expect(card.getByText("Chờ duyệt")).toBeVisible();
+
+    // Edit while PENDING — see MySubmissionsList.tsx.
+    await card.getByRole("button", { name: "Chỉnh sửa" }).click();
+    const editedTitle = `${title} (edited)`;
+    await card.getByLabel("Tiêu đề câu hỏi").fill(editedTitle);
+    await card.getByRole("button", { name: "Lưu" }).click();
+    await expect(card).toContainText(editedTitle);
+
+    // Withdraw: optimistic removal (questionSubmissionsApi.ts), no reload needed.
+    await card.getByRole("button", { name: "Rút lại" }).click();
+    await expect(page.locator("main ul li", { hasText: editedTitle })).toHaveCount(0);
+  });
+
   test("marking a topic as studying persists across a reload, and can be unmarked (FU-22)", async () => {
     await page.goto("/vi/questions");
 

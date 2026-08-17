@@ -20,7 +20,7 @@ export function LanguageSwitcher() {
   function switchTo(next: Locale) {
     if (next === lang) return;
     document.cookie = `${LOCALE_COOKIE_NAME}=${next}; path=/; max-age=${ONE_YEAR_SECONDS}; samesite=lax`;
-    // The two external-callback pages (VNPay return, Google OAuth
+    // The two external-callback pages (MoMo return, Google OAuth
     // callback) render this Footer too but live outside app/[lang]/ — no
     // `/${lang}` prefix to swap out. Falling back to the new locale's
     // homepage there instead of appending, which would build a path that

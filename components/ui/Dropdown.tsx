@@ -165,7 +165,11 @@ export function Dropdown({ id, value, options, placeholder, onChange, menuPlacem
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => selectAt(index)}
                 className={`flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm text-text ${
-                  index === activeIndex ? "bg-marker-100" : ""
+                  // bg-wash-bg, not bg-marker-100: marker-100 is a fixed,
+                  // theme-invariant light tint (see globals.css), so paired
+                  // with theme-adaptive text-text it's unreadable in dark
+                  // mode. wash-bg re-themes per mode instead.
+                  index === activeIndex ? "bg-wash-bg" : ""
                 }`}
               >
                 {option.dotClassName && <span className={`size-2 shrink-0 rounded-full ${option.dotClassName}`} />}

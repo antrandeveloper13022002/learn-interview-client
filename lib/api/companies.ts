@@ -13,15 +13,17 @@ function buildQuery(params: Record<string, string | number | boolean | undefined
   return qs ? `?${qs}` : "";
 }
 
-export function getCompanies(params: CompanyListParams): Promise<CompanyListResponse> {
-  const query = buildQuery(params);
+// `lang` is a separate parameter, not folded into `CompanyListParams` — it's
+// a locale concern resolved server-side (US-50/51), not a filter.
+export function getCompanies(params: CompanyListParams, lang: string): Promise<CompanyListResponse> {
+  const query = buildQuery({ ...params, lang });
   return apiFetch<CompanyListResponse>(`${API_ROUTES.companies}${query}`, {
     next: { revalidate: LISTING_REVALIDATE_SECONDS },
   });
 }
 
-export function getCompanyDetail(slug: string): Promise<Company> {
-  return apiFetch<Company>(API_ROUTES.companyDetail(slug), {
+export function getCompanyDetail(slug: string, lang: string): Promise<Company> {
+  return apiFetch<Company>(`${API_ROUTES.companyDetail(slug)}?lang=${lang}`, {
     next: { revalidate: LISTING_REVALIDATE_SECONDS },
   });
 }

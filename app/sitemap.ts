@@ -4,6 +4,7 @@ import { getCompanies } from "@/lib/api/companies";
 import { env } from "@/lib/env";
 import { PAGE_ROUTES } from "@/lib/routes";
 import { SUPPORTED_LOCALES, localizedPath } from "@/lib/routes/locale";
+import { PAYMENTS_ENABLED } from "@/lib/constants";
 
 // Backend caps pageSize at 100 (list-questions.dto.ts / list-companies.dto.ts)
 // — this loops pages instead of requesting a larger batch.
@@ -20,7 +21,7 @@ async function getAllQuestionSlugs(): Promise<string[]> {
   let page = 1;
   let hasMore = true;
   while (hasMore) {
-    const result = await getQuestions({ page, pageSize: SITEMAP_QUESTION_BATCH_SIZE });
+    const result = await getQuestions({ page, pageSize: SITEMAP_QUESTION_BATCH_SIZE }, "vi");
     slugs.push(...result.items.map((q) => q.slug));
     hasMore = result.items.length === SITEMAP_QUESTION_BATCH_SIZE;
     page += 1;
@@ -34,7 +35,7 @@ async function getAllCompanySlugs(): Promise<string[]> {
   let page = 1;
   let hasMore = true;
   while (hasMore) {
-    const result = await getCompanies({ page, pageSize: SITEMAP_COMPANY_BATCH_SIZE });
+    const result = await getCompanies({ page, pageSize: SITEMAP_COMPANY_BATCH_SIZE }, "vi");
     slugs.push(...result.items.map((c) => c.slug));
     hasMore = result.items.length === SITEMAP_COMPANY_BATCH_SIZE;
     page += 1;
@@ -62,7 +63,7 @@ function localizedEntries(
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, questionSlugs, companySlugs] = await Promise.all([
-    getCategories(),
+    getCategories("vi"),
     getAllQuestionSlugs(),
     getAllCompanySlugs(),
   ]);
@@ -71,7 +72,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries(PAGE_ROUTES.home, { changeFrequency: "weekly", priority: 1 }),
     ...localizedEntries(PAGE_ROUTES.questions, { changeFrequency: "daily", priority: 0.9 }),
     ...localizedEntries(PAGE_ROUTES.companies, { changeFrequency: "daily", priority: 0.7 }),
-    ...localizedEntries(PAGE_ROUTES.subscribe, { changeFrequency: "monthly", priority: 0.5 }),
+    // Noindexed while PAYMENTS_ENABLED=false (its own generateMetadata sets
+    // robots.index=false) — excluded from the sitemap for the same reason,
+    // a sitemap entry should be indexable.
+    ...(PAYMENTS_ENABLED ? localizedEntries(PAGE_ROUTES.subscribe, { changeFrequency: "monthly", priority: 0.5 }) : []),
   ];
 
   const categoryEntries: MetadataRoute.Sitemap = categories.flatMap((category) =>

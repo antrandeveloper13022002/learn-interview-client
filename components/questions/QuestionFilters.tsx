@@ -1,12 +1,16 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useText } from "@/lib/text/useText";
 import { DIFFICULTY_OPTIONS } from "@/lib/constants";
+import { PAGE_ROUTES } from "@/lib/routes";
 import { buildFilterHref, type QuestionFilterState } from "@/lib/questionSearchParams";
 import { Dropdown, type DropdownOption } from "@/components/ui/Dropdown";
+import { SearchAutocomplete, type SearchSuggestion } from "@/components/ui/SearchAutocomplete";
 import { TagMultiSelect } from "@/components/questions/TagMultiSelect";
+import { useLazySearchQuestionsQuery } from "@/lib/redux/questionsApi";
+import { useLocale } from "@/lib/routes/useLocale";
 import type { QuestionTagOption } from "@/lib/types";
 
 // Same difficulty→color mapping as QuestionList's DIFFICULTY_BADGE_CLASS —
@@ -30,12 +34,27 @@ type QuestionFiltersProps = {
 export function QuestionFilters({ basePath, tagOptions = [], current }: QuestionFiltersProps) {
   const router = useRouter();
   const text = useText();
+  const lang = useLocale();
   const [q, setQ] = useState(current.q ?? "");
   const difficultyId = useId();
   const premiumId = useId();
   const searchId = useId();
 
   const selectedTags = current.tag ?? [];
+
+  const [triggerSearch] = useLazySearchQuestionsQuery();
+  const fetchQuestionSuggestions = useCallback(
+    async (query: string): Promise<SearchSuggestion[]> => {
+      const res = await triggerSearch({ q: query, lang }).unwrap();
+      return res.items.map((item) => ({
+        key: item.id,
+        href: PAGE_ROUTES.questionDetail(item.slug),
+        primary: item.title,
+        secondary: text.questions.difficultyLabel[item.difficulty],
+      }));
+    },
+    [triggerSearch, text, lang],
+  );
 
   function navigate(next: Partial<QuestionFilterState>) {
     router.push(buildFilterHref(basePath, { ...current, ...next }));
@@ -138,13 +157,14 @@ export function QuestionFilters({ basePath, tagOptions = [], current }: Question
             {text.questions.filters.searchLabel}
           </label>
           <div className="flex gap-2">
-            <input
+            <SearchAutocomplete
               id={searchId}
-              type="search"
+              ariaLabel={text.questions.filters.searchLabel}
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={setQ}
+              fetchSuggestions={fetchQuestionSuggestions}
               placeholder={text.questions.filters.searchPlaceholder}
-              className="min-h-11 w-full rounded-md border border-border bg-surface px-3 text-text"
+              className="flex-1"
             />
             <button
               type="submit"

@@ -8,7 +8,7 @@ import { DEFAULT_LOCALE } from "@/lib/routes/locale";
 const text = getText(DEFAULT_LOCALE);
 
 // Second root layout (Next.js's "multiple root layouts" pattern) for the
-// two routes that must stay unprefixed, outside app/[lang]/ — VNPay's
+// two routes that must stay unprefixed, outside app/[lang]/ — MoMo's
 // return URL and Google's OAuth redirect URI are both fixed, externally
 // configured values (see tasks/frontend-user.md FU-19). No `params.lang`
 // exists here, so this always renders the VN-first default — consistent

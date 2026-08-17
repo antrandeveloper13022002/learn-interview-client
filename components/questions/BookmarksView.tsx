@@ -7,6 +7,7 @@ import { BookmarkToggle } from "@/components/questions/BookmarkToggle";
 import { DIFFICULTY_BADGE_CLASS } from "@/components/questions/QuestionList";
 import { SkeletonGroup, Skeleton } from "@/components/Skeleton";
 import { useText } from "@/lib/text/useText";
+import { useLocale } from "@/lib/routes/useLocale";
 import { PAGE_ROUTES } from "@/lib/routes";
 
 /**
@@ -19,9 +20,10 @@ import { PAGE_ROUTES } from "@/lib/routes";
  */
 export function BookmarksView() {
   const text = useText();
+  const lang = useLocale();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const isBootstrapped = useAppSelector((s) => s.auth.isBootstrapped);
-  const { data, isLoading, isError, refetch } = useGetMyBookmarksQuery(undefined, { skip: !accessToken });
+  const { data, isLoading, isError, refetch } = useGetMyBookmarksQuery({ lang }, { skip: !accessToken });
 
   if (!isBootstrapped) {
     return (

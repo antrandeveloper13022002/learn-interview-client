@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Link } from "@/components/i18n/LocaleLink";
 import { CompanyReviewsSection } from "@/components/company/CompanyReviewsSection";
+import { BuildingIcon, GlobeIcon, MapPinIcon, UsersIcon } from "@/components/icons";
 import { ApiError } from "@/lib/api/client";
 import { getCompanyDetail } from "@/lib/api/companies";
 import { serializeJsonLd } from "@/lib/jsonLd";
@@ -13,9 +14,17 @@ type Props = {
   params: Promise<{ lang: string; slug: string }>;
 };
 
-async function loadCompany(slug: string) {
+function websiteHostname(url: string): string {
   try {
-    return await getCompanyDetail(slug);
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+async function loadCompany(slug: string, lang: string) {
+  try {
+    return await getCompanyDetail(slug, lang);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
       notFound();
@@ -28,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang: rawLang, slug } = await params;
   const lang = resolveLocale(rawLang);
   const text = getText(lang);
-  const company = await loadCompany(slug);
+  const company = await loadCompany(slug, lang);
 
   const title = company.name;
   const description = `${text.companies.detail.meta.descriptionPrefix}: ${company.name}. ${company.description}`.slice(
@@ -55,7 +64,7 @@ export default async function CompanyDetailPage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = resolveLocale(rawLang);
   const text = getText(lang);
-  const company = await loadCompany(slug);
+  const company = await loadCompany(slug, lang);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -106,55 +115,70 @@ export default async function CompanyDetailPage({ params }: Props) {
           </ol>
         </nav>
 
-        <div className="mt-3 flex items-start gap-4">
-          {company.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- external, admin-supplied URL, not a project asset next/image can optimize without a remotePatterns allowlist decision (out of scope here).
-            <img
-              src={company.logoUrl}
-              alt=""
-              className="size-16 shrink-0 rounded-lg border border-border bg-surface object-contain"
-            />
-          )}
-          <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">{company.name}</h1>
-            {(company.province || company.employeeSizeRange) && (
-              <p className="mt-1 text-sm text-text-muted">
-                {[
-                  company.province?.name,
-                  company.employeeSizeRange ? text.companies.detail.employeeSizeRangeLabel[company.employeeSizeRange] : null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+        <div className="mt-3 rounded-[18px] border border-border bg-surface p-6 shadow-(--shadow-border)">
+          <div className="flex items-start gap-5">
+            {company.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- external, admin-supplied URL, not a project asset next/image can optimize without a remotePatterns allowlist decision (out of scope here).
+              <img
+                src={company.logoUrl}
+                alt=""
+                className="size-16 shrink-0 rounded-lg border border-border bg-bg object-contain"
+              />
+            ) : (
+              <span className="grid size-16 shrink-0 place-items-center rounded-lg border border-border bg-marker-100 text-marker-700">
+                <BuildingIcon className="size-7" />
+              </span>
             )}
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-2xl font-bold tracking-tight">{company.name}</h1>
+
+              {(company.province || company.employeeSizeRange || company.website) && (
+                <div className="mt-1 mb-3 flex flex-wrap gap-3">
+                  {company.province && (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-text-muted">
+                      <MapPinIcon className="size-3" />
+                      {company.province.name}
+                    </span>
+                  )}
+                  {company.employeeSizeRange && (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-text-muted">
+                      <UsersIcon className="size-3" />
+                      {text.companies.detail.employeeSizeRangeLabel[company.employeeSizeRange]}
+                    </span>
+                  )}
+                  {company.website && (
+                    <a
+                      href={company.website}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-marker-700 hover:underline"
+                    >
+                      <GlobeIcon className="size-3" />
+                      {websiteHostname(company.website)}
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {company.industries.length > 0 && (
+                <ul aria-label={text.companies.detail.industriesAriaLabel} className="flex flex-wrap gap-2">
+                  {company.industries.map((industry) => (
+                    <li
+                      key={industry}
+                      className="font-mono rounded-full border border-border px-2.5 py-0.5 text-[11px] text-text-muted"
+                    >
+                      {industry}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
+
+          <div className="my-5 h-px bg-border" />
+
+          <p className="whitespace-pre-line text-[14.5px] leading-relaxed text-text">{company.description}</p>
         </div>
-
-        {(company.website || company.industries.length > 0) && (
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            {company.website && (
-              <a
-                href={company.website}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="text-sm font-medium text-marker-700 hover:underline"
-              >
-                {text.companies.detail.websiteLinkLabel} ↗
-              </a>
-            )}
-            {company.industries.length > 0 && (
-              <ul aria-label={text.companies.detail.industriesAriaLabel} className="flex flex-wrap gap-2">
-                {company.industries.map((industry) => (
-                  <li key={industry} className="rounded-full bg-wash-bg px-3 py-1 text-xs font-medium text-wash-text">
-                    {industry}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-
-        <p className="mt-6 whitespace-pre-line text-text">{company.description}</p>
 
         <CompanyReviewsSection companyId={company.id} />
       </div>

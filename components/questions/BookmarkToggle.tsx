@@ -3,6 +3,7 @@
 import { useAppSelector } from "@/lib/redux/hooks";
 import { useAddBookmarkMutation, useGetMyBookmarksQuery, useRemoveBookmarkMutation } from "@/lib/redux/bookmarksApi";
 import { useText } from "@/lib/text/useText";
+import { useLocale } from "@/lib/routes/useLocale";
 import type { QuestionSummary } from "@/lib/types";
 
 type BookmarkToggleProps = {
@@ -24,10 +25,12 @@ type BookmarkToggleProps = {
  */
 export function BookmarkToggle({ question, className = "" }: BookmarkToggleProps) {
   const text = useText();
+  const lang = useLocale();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
-  const { data: bookmarks, isLoading: isLoadingBookmarks } = useGetMyBookmarksQuery(undefined, {
-    skip: !accessToken,
-  });
+  const { data: bookmarks, isLoading: isLoadingBookmarks } = useGetMyBookmarksQuery(
+    { lang },
+    { skip: !accessToken },
+  );
   const [addBookmark, { isLoading: isAdding }] = useAddBookmarkMutation();
   const [removeBookmark, { isLoading: isRemoving }] = useRemoveBookmarkMutation();
 
@@ -41,8 +44,8 @@ export function BookmarkToggle({ question, className = "" }: BookmarkToggleProps
 
   function handleClick() {
     if (isDisabled) return;
-    if (isBookmarked) removeBookmark(question.id);
-    else addBookmark(question);
+    if (isBookmarked) removeBookmark({ questionId: question.id, lang });
+    else addBookmark({ ...question, lang });
   }
 
   return (

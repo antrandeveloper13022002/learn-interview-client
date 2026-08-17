@@ -15,9 +15,9 @@ type Props = {
   params: Promise<{ lang: string; slug: string }>;
 };
 
-async function loadQuestion(slug: string) {
+async function loadQuestion(slug: string, lang: string) {
   try {
-    return await getQuestionDetail(slug);
+    return await getQuestionDetail(slug, lang);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
       notFound();
@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang: rawLang, slug } = await params;
   const lang = resolveLocale(rawLang);
   const text = getText(lang);
-  const question = await loadQuestion(slug);
-  const category = await getCategoryById(question.categoryId);
+  const question = await loadQuestion(slug, lang);
+  const category = await getCategoryById(question.categoryId, lang);
 
   const { meta } = text.questions.detail;
   const title = question.title;
@@ -58,13 +58,14 @@ export default async function QuestionDetailPage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = resolveLocale(rawLang);
   const text = getText(lang);
-  const question = await loadQuestion(slug);
-  const category = await getCategoryById(question.categoryId);
+  const question = await loadQuestion(slug, lang);
+  const category = await getCategoryById(question.categoryId, lang);
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Question",
     name: question.title,
+    ...(question.contributor ? { author: { "@type": "Person", name: question.contributor.displayName } } : {}),
     ...(!question.isPremium && question.answer
       ? { acceptedAnswer: { "@type": "Answer", text: question.answer } }
       : {}),
@@ -149,6 +150,12 @@ export default async function QuestionDetailPage({ params }: Props) {
         )}
       </div>
 
+      {question.contributor && (
+        <p className="mt-3 text-sm text-text-muted">
+          {text.questions.detail.contributedByPrefix} <span className="font-medium text-text">{question.contributor.displayName}</span>
+        </p>
+      )}
+
       {question.tags.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
           {question.tags.map((tag) => (
@@ -165,12 +172,7 @@ export default async function QuestionDetailPage({ params }: Props) {
       )}
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide">
-          {text.questions.detail.answerHeading}
-        </h2>
-        <div className="mt-3">
-          <AnswerSection question={question} lang={lang} />
-        </div>
+        <AnswerSection question={question} lang={lang} />
       </section>
       </div>
     </div>

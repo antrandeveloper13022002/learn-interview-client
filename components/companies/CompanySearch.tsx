@@ -1,8 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useText } from "@/lib/text/useText";
+import { PAGE_ROUTES } from "@/lib/routes";
+import { SearchAutocomplete, type SearchSuggestion } from "@/components/ui/SearchAutocomplete";
+import { useLazySearchCompaniesQuery } from "@/lib/redux/companiesApi";
 
 type CompanySearchProps = {
   basePath: string;
@@ -14,6 +17,20 @@ export function CompanySearch({ basePath, q: initialQ }: CompanySearchProps) {
   const text = useText();
   const [q, setQ] = useState(initialQ ?? "");
   const searchId = useId();
+
+  const [triggerSearch] = useLazySearchCompaniesQuery();
+  const fetchCompanySuggestions = useCallback(
+    async (query: string): Promise<SearchSuggestion[]> => {
+      const res = await triggerSearch(query).unwrap();
+      return res.items.map((item) => ({
+        key: item.id,
+        href: PAGE_ROUTES.companyDetail(item.slug),
+        primary: item.name,
+        secondary: item.province?.name,
+      }));
+    },
+    [triggerSearch],
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,13 +51,13 @@ export function CompanySearch({ basePath, q: initialQ }: CompanySearchProps) {
         <label htmlFor={searchId} className="text-sm font-medium text-text">
           {text.companies.filters.searchLabel}
         </label>
-        <input
+        <SearchAutocomplete
           id={searchId}
-          type="search"
+          ariaLabel={text.companies.filters.searchLabel}
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={setQ}
+          fetchSuggestions={fetchCompanySuggestions}
           placeholder={text.companies.filters.searchPlaceholder}
-          className="min-h-11 w-full rounded-md border border-border bg-surface px-3 text-text"
         />
       </div>
       <button

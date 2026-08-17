@@ -31,4 +31,10 @@ export const API_ROUTES = {
   subscriptionPlans: "/subscription-plans",
   checkout: "/subscriptions/checkout",
   mySubscription: "/me/subscription",
+  questionSubmissions: "/question-submissions",
+  questionSubmission: (id: string) => `/question-submissions/${id}`,
+  myQuestionSubmissions: "/me/question-submissions",
+  myNotifications: "/me/notifications",
+  notificationRead: (id: string) => `/me/notifications/${id}/read`,
+  notificationPreferences: "/me/notification-preferences",
 } as const;

@@ -32,7 +32,9 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  const categories = await getCategories();
+  // Slugs are locale-independent — "vi" here doesn't affect which pages
+  // get generated, only the (unused) `name` field on the returned rows.
+  const categories = await getCategories("vi");
   return categories.map((c) => ({ slug: c.slug }));
 }
 
@@ -40,7 +42,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { lang: rawLang, slug } = await params;
   const lang = resolveLocale(rawLang);
   const text = getText(lang);
-  const category = await getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug, lang);
   if (!category) return {};
 
   const search = await searchParams;
@@ -80,7 +82,7 @@ export default async function CategoryQuestionsPage({ params, searchParams }: Pr
   const { lang: rawLang, slug } = await params;
   const lang = resolveLocale(rawLang);
   const text = getText(lang);
-  const category = await getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug, lang);
   if (!category) notFound();
 
   const search = await searchParams;
@@ -90,18 +92,21 @@ export default async function CategoryQuestionsPage({ params, searchParams }: Pr
   const tags = parseTags(search.tag);
 
   const [categories, tagOptions, result, questionTotals] = await Promise.all([
-    getCategories(),
+    getCategories(lang),
     getQuestionTags(),
-    getQuestions({
-      categoryId: category.id,
-      difficulty,
-      isPremium: premium,
-      tag: tags,
-      q: search.q,
-      page,
-      pageSize: QUESTION_LIST_PAGE_SIZE,
-    }),
-    getQuestions({ pageSize: 1 }),
+    getQuestions(
+      {
+        categoryId: category.id,
+        difficulty,
+        isPremium: premium,
+        tag: tags,
+        q: search.q,
+        page,
+        pageSize: QUESTION_LIST_PAGE_SIZE,
+      },
+      lang,
+    ),
+    getQuestions({ pageSize: 1 }, lang),
   ]);
 
   const startIndex = (result.page - 1) * result.pageSize;
@@ -110,7 +115,7 @@ export default async function CategoryQuestionsPage({ params, searchParams }: Pr
 
   return (
     <div className="min-h-full bg-bg text-text">
-      <div className="mx-auto flex w-full max-w-6xl">
+      <div className="mx-auto flex w-full max-w-7xl">
         <TopicSidebar
           categories={categories}
           totalQuestionCount={questionTotals.total}

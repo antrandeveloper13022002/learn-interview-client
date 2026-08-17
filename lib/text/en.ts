@@ -1,4 +1,4 @@
-import type { Difficulty, EmployeeSizeRange } from "@/lib/types";
+import type { Difficulty, EmployeeSizeRange, SubmissionStatus } from "@/lib/types";
 
 // English UI copy for frontend-user, mirroring vi.ts's exact key structure —
 // see docs/business/vision.md#phase-amendment--2026-08-06 (US-49/50).
@@ -12,6 +12,9 @@ export const en = {
     companiesLink: "Companies",
     subscribeLink: "Pricing",
     bookmarksLink: "Saved questions",
+    contributeLink: "Contribute",
+    mySubmissionsLink: "My submissions",
+    notificationsLabel: "Notifications",
     profileLink: "Profile",
     logoutLabel: "Log out",
     loginLink: "Log in",
@@ -177,8 +180,11 @@ export const en = {
     detail: {
       breadcrumbAriaLabel: "Breadcrumb",
       answerHeading: "Answer",
+      referenceLinksHeading: "Further reading",
       noAnswerYet: "This question doesn't have an answer yet.",
       revealAnswerCta: "Show answer",
+      freeBadge: "Free",
+      contributedByPrefix: "Contributed by",
       meta: {
         descriptionPrefix: "Interview question",
         descriptionCategoryInfix: "on",
@@ -194,6 +200,8 @@ export const en = {
         gatedBodyLoggedOut: "Log in and upgrade to Premium to see the full answer.",
         upgradeCta: "Upgrade now",
         loginCta: "Log in",
+        unlockedBadge: "Unlocked",
+        lockedBadge: "Locked",
       },
     },
     filters: {
@@ -248,7 +256,6 @@ export const en = {
         RANGE_1000_5000: "1,000–5,000 employees",
         OVER_5000: "Over 5,000 employees",
       } satisfies Record<EmployeeSizeRange, string>,
-      websiteLinkLabel: "Company website",
       industriesAriaLabel: "Industries",
     },
     filters: {
@@ -258,6 +265,9 @@ export const en = {
       searchSubmit: "Search",
     },
     reviews: {
+      // Same dev-console eyebrow convention as home.eyebrow — deliberately
+      // ASCII/command-style in both locales, not translated.
+      eyebrow: (count: number) => `$ reviews --count=${count}`,
       heading: "Company reviews",
       emptyBody: "No reviews for this company yet.",
       ratingAriaLabel: (rating: number) => `${rating} out of 5 stars`,
@@ -269,11 +279,14 @@ export const en = {
       deleteLabel: "Delete",
       reportLabel: "Report",
       reportedLabel: "Reported",
+      // Section heading above the write-review box — switches with login
+      // state, same as the design (docs/design/figma-export's WriteReviewCard).
+      shareExperienceHeading: "Share your experience",
+      writeReviewHeading: "Write your review",
       form: {
-        heading: "Write a review",
-        loginPromptBefore: "",
-        loginPromptLink: "Log in",
-        loginPromptAfter: " to write a review for this company.",
+        loginPromptHeading: "Log in to write a review",
+        loginPromptBody: "You need to log in to share a review of this company.",
+        loginPromptCta: "Log in",
         ratingLabel: "Your rating",
         ratingStarAriaLabel: (value: number) => `${value} star${value === 1 ? "" : "s"}`,
         contentLabel: "Review",
@@ -317,6 +330,117 @@ export const en = {
     signedOutTitle: "Log in to see your profile",
     signedOutBody: "You need to log in to view and edit your profile.",
   },
+  contribute: {
+    pageTitle: "Contribute a question",
+    breadcrumbLabel: "Contribute a question",
+    heading: "Contribute a question",
+    intro:
+      "Your question will be reviewed by an admin before it's published. Your display name will be credited publicly once it's approved.",
+    loginPromptHeading: "Log in to contribute a question",
+    loginPromptBody: "You need to log in to submit a question to the community.",
+    loginPromptCta: "Log in",
+    form: {
+      titleLabel: "Question title",
+      titleHint: "Keep it short and clear — this is what shows up in the question list.",
+      titlePlaceholder: "Example: Explain the difference between BFS and DFS.",
+      contentLabel: "Question content",
+      contentHint: "Describe the question in full, with context or constraints if any.",
+      contentPlaceholder: "Write the full question here...",
+      answerLabel: "Suggested answer",
+      answerHint: "Your reference answer. An admin may edit it before publishing.",
+      answerPlaceholder: "Write out the answer, including complexity analysis if relevant...",
+      consentNote: "By submitting, you agree to let the platform publish this question (once approved) and credit your display name.",
+      resetLabel: "Reset",
+      submitLabel: "Submit question",
+      submittingLabel: "Submitting...",
+    },
+    displayNameRequired: {
+      title: "You haven't set a display name",
+      body: "Your display name will be credited publicly once this question is approved. Set one before contributing.",
+      cta: "Go to profile settings",
+    },
+    genericError: "Couldn't submit the question. Please try again.",
+    success: {
+      statusLabel: "Submitted — pending review",
+      heading: "Submitted — pending review",
+      body: "Your question was submitted successfully and is awaiting admin review. You'll be notified once it's decided.",
+      viewSubmissionsCta: "View my submissions",
+      submitAnotherCta: "Submit another question",
+    },
+  },
+  mySubmissions: {
+    pageTitle: "Contributed questions",
+    breadcrumbLabel: "Contributed questions",
+    heading: "Contributed questions",
+    loadingSrOnly: "Loading contributed questions…",
+    signedOutTitle: "Log in to see your contributed questions",
+    signedOutBody: "You need to log in to view the status of your submissions.",
+    errorTitle: "Couldn't load the list",
+    errorBody: "Check your network and try again.",
+    emptyTitle: "No submissions yet",
+    emptyBody: "You haven't contributed any questions yet. Start sharing your knowledge with the community.",
+    emptyCta: "Contribute your first question",
+    contributeMoreCta: "Contribute another",
+    status: {
+      PENDING: "Pending",
+      APPROVED: "Approved",
+      REJECTED: "Rejected",
+    } as Record<SubmissionStatus, string>,
+    rejectionReasonLabel: "Rejection reason",
+    editLabel: "Edit",
+    saveLabel: "Save",
+    savingLabel: "Saving...",
+    cancelLabel: "Cancel",
+    withdrawLabel: "Withdraw",
+    viewPublishedCta: "View published question",
+    lockedLabel: "Locked",
+    actionError: "Couldn't save your changes. This question may have just been reviewed — try reloading the page.",
+    summary: (approved: number, pending: number, rejected: number) =>
+      `${approved} approved · ${pending} pending · ${rejected} rejected`,
+  },
+  notifications: {
+    heading: "Notifications",
+    loadingSrOnly: "Loading notifications…",
+    errorTitle: "Couldn't load notifications",
+    errorBody: "Check your network and try again.",
+    emptyTitle: "No notifications yet",
+    emptyBody: "Updates about your account and subscription will show up here.",
+    unreadBadgeAriaLabel: (count: number) => `${count} unread notifications`,
+    message: (type: string, payload: Record<string, unknown>): string => {
+      const planLabel = (planName: unknown) =>
+        typeof planName === "string" ? (en.subscription.planName[planName] ?? planName) : "";
+      switch (type) {
+        case "UserRegistered":
+          return "Welcome to DevDeck! Your account was created successfully.";
+        case "SubscriptionActivated":
+          return `${planLabel(payload.planName)} was activated successfully.`;
+        case "PaymentFailed":
+          return `Payment for ${planLabel(payload.planName)} failed. Please try again.`;
+        default:
+          return "You have a new notification.";
+      }
+    },
+    settingsLinkLabel: "Notification settings",
+    preferences: {
+      pageTitle: "Notification settings",
+      pageHeading: "Notification settings",
+      pageIntro: "Choose which notifications you want to receive by email.",
+      loadingSrOnly: "Loading notification settings…",
+      errorTitle: "Couldn't load notification settings",
+      errorBody: "Check your network and try again.",
+      signedOutTitle: "Log in to see notification settings",
+      signedOutBody: "You need to log in to view and edit notification settings.",
+      transactionalGroupTitle: "Transactional",
+      transactionalGroupBody: "Account created, plan activated, payment failed.",
+      transactionalGroupNote: "Always on — protects you from missing important account or payment information.",
+      remindersGroupTitle: "Reminders",
+      remindersGroupBody: "A reminder before your plan renews.",
+      remindersToggleLabel: "Receive renewal reminder emails",
+      savingLabel: "Saving…",
+      savedLabel: "Saved",
+      saveError: "Couldn't save. Please try again.",
+    },
+  },
   subscription: {
     planName: {
       MONTHLY: "Monthly Plan",
@@ -326,23 +450,47 @@ export const en = {
       pageTitle: "Upgrade to Premium",
       pageHeading: "Choose a Premium plan",
       pageIntro: "Unlock full, detailed answers for every interview question.",
+      // 2026-08-18 — shown instead of the plan selector while
+      // PAYMENTS_ENABLED=false (lib/constants/app.ts).
+      comingSoonTitle: "Premium plans are coming soon",
+      comingSoonBody:
+        "We're finishing up checkout. In the meantime, everything — including the suggested answer for Premium questions — is free for everyone.",
+      comingSoonCta: "Browse questions",
       loadingSrOnly: "Loading plans…",
       errorTitle: "Couldn't load plans",
       errorBody: "Check your network and try again.",
       emptyTitle: "No plans available right now",
-      lifetimeBadge: "Lifetime, never expires",
+      perPeriodSuffix: "/ month",
+      oneTimeSuffix: "one-time",
       recommendedBadge: "Most popular",
       freeTitle: "Free",
       freePriceLabel: "$0",
       freeDescription: "Read every question, including free ones, no account needed.",
       freeCta: "Browse free questions",
+      // All real, non-Premium features: real free-question total (from the
+      // API), study-mark/bookmark tracking (FU-22), company reviews
+      // (BE-36/37) — not a dashboard-style "progress tracking" feature the
+      // product doesn't have.
+      freeBenefits: (count: number) => [
+        `Access all ${count} free questions`,
+        "Mark topics you're studying and bookmark favorite questions",
+        "Write company reviews",
+      ],
       planDescription: {
         MONTHLY: "Good for a quick refresh before a specific round of interviews.",
         LIFETIME: "Pay once, use forever — no renewal needed.",
       } as Record<string, string>,
-      paymentNote: "Secure payment via VNPay",
+      // What Premium actually unlocks (business-rule.md#premium-gating,
+      // #Premium-content-leak) — the same for both paid plans, since both
+      // grant identical entitlement and differ only in price/duration.
+      benefits: [
+        "Unlock detailed answers for every question, including Premium ones",
+        "See comments and ratings on Premium questions",
+        "Applies across every interview topic",
+      ],
+      paymentNote: "Secure payment via MoMo",
       selectCta: "Choose this plan",
-      selectCtaLoading: "Redirecting to VNPay…",
+      selectCtaLoading: "Redirecting to MoMo…",
       signedOutTitle: "Log in to upgrade",
       signedOutBody: "You need to log in before choosing a Premium plan.",
       alreadySubscribed: {
@@ -355,13 +503,13 @@ export const en = {
     callback: {
       pageTitle: "Confirming payment",
       confirmingSrOnly: "Confirming payment…",
-      confirmingBody: "Confirming your payment with VNPay. Please wait a moment…",
+      confirmingBody: "Confirming your payment with MoMo. Please wait a moment…",
       successTitle: "Payment successful",
       successBody: "Your account has been upgraded to Premium.",
       goToQuestionsLink: "See Premium questions",
       pendingTitle: "Payment confirmation not received yet",
       pendingBody:
-        "We haven't received payment confirmation from VNPay yet. If your payment succeeded, this page will update automatically in a few minutes — otherwise, please try again.",
+        "We haven't received payment confirmation from MoMo yet. If your payment succeeded, this page will update automatically in a few minutes — otherwise, please try again.",
       retryLink: "Try again",
       backToSubscribeLink: "Back to plan selection",
       signedOutTitle: "Couldn't determine your session",
@@ -377,8 +525,11 @@ export const en = {
     eyebrow: "$ interview-training --topic=all --level=junior..senior",
     heroHeadingBeforeMark: "Practice interviews with real questions, ",
     heroHeadingMark: "with suggested answers",
+    // 2026-08-18 — accurate while PREMIUM_GATING_ENABLED=false (backend
+    // env.ts): everything, including Premium answers, is free right now.
+    // Revert alongside that flag.
     heroSub:
-      "Browse interview questions by topic and difficulty, answer them yourself first, then compare against the suggested answer — every question is free to read, unlock full answers with a paid plan.",
+      "Browse interview questions by topic and difficulty, answer them yourself first, then compare against the suggested answer — every question, including Premium ones, is free to read right now.",
     searchPlaceholder: "e.g. event loop, React hooks, database normalization...",
     searchSubmit: "Search",
     searchAriaLabel: "Search interview questions",
@@ -414,7 +565,7 @@ export const en = {
       { title: "Answer it yourself first", body: "Read the question and try answering it like a real interview." },
       {
         title: "Compare with the suggested answer",
-        body: "Free questions are visible right away; Premium questions unlock the answer with a paid plan.",
+        body: "See the suggested answer right away — Premium questions are free to unlock too, for now.",
       },
     ],
     ctaHeading: "Ready to practice more seriously?",
@@ -423,18 +574,21 @@ export const en = {
     faqHeading: "Frequently asked questions",
     faq: [
       {
+        // 2026-08-18 — accurate while PREMIUM_GATING_ENABLED=false
+        // (backend/src/shared/config/env.ts): payment isn't live yet, so
+        // nothing is actually paywalled. Revert alongside that flag.
         question: "Do I have to pay to see the questions?",
         answer:
-          "No. Every question is always free to read, even if you're not logged in. Only the suggested answer for Premium questions requires a paid plan.",
+          "No. Every question — including the suggested answer for Premium questions — is free to read for everyone during launch.",
       },
       {
         question: "What's different about Premium questions?",
         answer:
-          "Premium questions show the full question as normal, but the \"suggested answer\" section only appears if your account has an active plan.",
+          "Premium questions usually come with a more detailed answer, sometimes a code demo or a \"when to use which\" note. Once paid plans launch, that answer will require an active plan — for now it's open to everyone.",
       },
       {
-        question: "What payment methods can I use?",
-        answer: "Payment is via VNPay. See the Pricing page for plan details.",
+        question: "When will paid plans launch?",
+        answer: "We're finishing up MoMo checkout. In the meantime, everything is free to read.",
       },
     ],
   },

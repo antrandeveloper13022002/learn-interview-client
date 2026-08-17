@@ -5,7 +5,7 @@ import { DEFAULT_LOCALE, isLocale, localizedPath, type Locale } from "./locale";
 
 /** Current locale from the `[lang]` route segment. Falls back to the
  * VN-first default for any tree rendered outside `app/[lang]/...` (e.g.
- * the fixed-URL VNPay/Google OAuth callback pages, which deliberately stay
+ * the fixed-URL MoMo/Google OAuth callback pages, which deliberately stay
  * unprefixed — see tasks/frontend-user.md FU-19). */
 export function useLocale(): Locale {
   const params = useParams<{ lang?: string }>();

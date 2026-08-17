@@ -6,7 +6,7 @@ import { useAppSelector } from "@/lib/redux/hooks";
 import { useCreateCompanyReviewMutation } from "@/lib/redux/companyReviewApi";
 import { useText } from "@/lib/text/useText";
 import { PAGE_ROUTES } from "@/lib/routes";
-import { StarIcon } from "@/components/icons";
+import { LockIcon, StarIcon } from "@/components/icons";
 
 type ReviewFormProps = { companyId: string };
 
@@ -27,13 +27,21 @@ export function ReviewForm({ companyId }: ReviewFormProps) {
 
   if (!accessToken) {
     return (
-      <p className="rounded-lg border border-dashed border-border bg-bg p-4 text-sm text-text-muted">
-        {text.companies.reviews.form.loginPromptBefore}
-        <Link href={PAGE_ROUTES.login} className="font-medium text-marker-700 underline">
-          {text.companies.reviews.form.loginPromptLink}
+      <div className="flex flex-col items-center gap-5 rounded-lg border border-border bg-surface p-6 shadow-(--shadow-border) sm:flex-row">
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-marker-100 text-marker-700">
+          <LockIcon className="size-4.5" />
+        </span>
+        <div className="flex-1 text-center sm:text-left">
+          <p className="font-display text-[15px] font-semibold text-text">{text.companies.reviews.form.loginPromptHeading}</p>
+          <p className="text-[13.5px] text-text-muted">{text.companies.reviews.form.loginPromptBody}</p>
+        </div>
+        <Link
+          href={PAGE_ROUTES.login}
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-marker-500 px-5 text-sm font-semibold text-ink-950 hover:bg-marker-600"
+        >
+          {text.companies.reviews.form.loginPromptCta}
         </Link>
-        {text.companies.reviews.form.loginPromptAfter}
-      </p>
+      </div>
     );
   }
 
@@ -55,20 +63,18 @@ export function ReviewForm({ companyId }: ReviewFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-surface p-4" aria-busy={isLoading}>
-      <h3 className="font-semibold text-text">{text.companies.reviews.form.heading}</h3>
-
       {justSubmitted && (
-        <p role="status" className="mt-3 rounded-md bg-correct-bg px-3 py-2 text-sm text-correct-text">
+        <p role="status" className="mb-4 rounded-md bg-correct-bg px-3 py-2 text-sm text-correct-text">
           {text.companies.reviews.form.submittedNotice}
         </p>
       )}
       {error && (
-        <p role="alert" className="mt-3 rounded-md bg-flag-bg px-3 py-2 text-sm text-flag-text">
+        <p role="alert" className="mb-4 rounded-md bg-flag-bg px-3 py-2 text-sm text-flag-text">
           {text.common.genericErrorBody}
         </p>
       )}
 
-      <fieldset className="mt-4">
+      <fieldset>
         <legend className="text-sm font-medium text-text">{text.companies.reviews.form.ratingLabel}</legend>
         <div className="mt-2 flex gap-1" role="radiogroup" aria-label={text.companies.reviews.form.ratingLabel}>
           {[1, 2, 3, 4, 5].map((value) => (

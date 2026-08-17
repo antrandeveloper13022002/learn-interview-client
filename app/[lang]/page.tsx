@@ -3,7 +3,7 @@ import { Link } from "@/components/i18n/LocaleLink";
 import { getText } from "@/lib/text";
 import { PAGE_ROUTES } from "@/lib/routes";
 import { SUPPORTED_LOCALES, localizedPath, resolveLocale } from "@/lib/routes/locale";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, PAYMENTS_ENABLED } from "@/lib/constants";
 import { getCategories, getQuestions } from "@/lib/api/questions";
 import { TargetIcon, ChatIcon, BookmarkIcon, SearchIcon, CheckIcon, ArrowRightIcon } from "@/components/icons";
 
@@ -40,14 +40,14 @@ export default async function Home({ params }: Props) {
   // Real data, not illustrative counts — guest-scoped server fetch, same
   // path /questions itself uses (lib/api/client.ts never forwards a
   // session here, so this is safe to cache/revalidate across visitors).
-  const [categories, questionTotals] = await Promise.all([getCategories(), getQuestions({ pageSize: 1 })]);
+  const [categories, questionTotals] = await Promise.all([getCategories(lang), getQuestions({ pageSize: 1 }, lang)]);
   const categoryCounts = await Promise.all(
-    categories.map((c) => getQuestions({ categoryId: c.id, pageSize: 1 }).then((r) => r.total)),
+    categories.map((c) => getQuestions({ categoryId: c.id, pageSize: 1 }, lang).then((r) => r.total)),
   );
 
   return (
     <div className="min-h-full bg-bg pb-12 text-text">
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
       {/* ======================= Hero ======================= */}
       <section className="grid grid-cols-1 items-center gap-8 md:grid-cols-[1.15fr_0.85fr] md:gap-12">
         <div>
@@ -174,18 +174,24 @@ export default async function Home({ params }: Props) {
       </section>
 
       {/* ======================= CTA ======================= */}
-      <section className="cta-band mt-16 rounded-[18px] px-6 py-8 text-center text-paper-0">
-        <h2 className="font-display text-lg font-semibold">{text.home.ctaHeading}</h2>
-        <p className="mt-2" style={{ color: "color-mix(in oklch, var(--color-paper-0) 70%, transparent)" }}>
-          {text.home.ctaBody}
-        </p>
-        <Link
-          href={PAGE_ROUTES.subscribe}
-          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md bg-paper-0 px-4 font-semibold text-ink-950 hover:bg-marker-100"
-        >
-          {text.home.ctaLink} <ArrowRightIcon className="size-4" />
-        </Link>
-      </section>
+      {/* This band's copy ("Unlock every suggested answer with Premium" /
+          "See pricing") only makes sense with payment live — hidden
+          alongside PAYMENTS_ENABLED (lib/constants/app.ts), since Premium
+          content is unlocked for everyone in the meantime. */}
+      {PAYMENTS_ENABLED && (
+        <section className="cta-band mt-16 rounded-[18px] px-6 py-8 text-center text-paper-0">
+          <h2 className="font-display text-lg font-semibold">{text.home.ctaHeading}</h2>
+          <p className="mt-2" style={{ color: "color-mix(in oklch, var(--color-paper-0) 70%, transparent)" }}>
+            {text.home.ctaBody}
+          </p>
+          <Link
+            href={PAGE_ROUTES.subscribe}
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-md bg-paper-0 px-4 font-semibold text-ink-950 hover:bg-marker-100"
+          >
+            {text.home.ctaLink} <ArrowRightIcon className="size-4" />
+          </Link>
+        </section>
+      )}
 
       {/* ======================= FAQ ======================= */}
       <section className="mt-16 rounded-[18px] bg-surface p-6 shadow-(--shadow-border)">

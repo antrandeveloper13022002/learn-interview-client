@@ -80,16 +80,19 @@ function TopicRow({
 }) {
   return (
     <div
-      className={`relative flex min-h-11 items-center rounded-lg transition-colors ${
-        active ? "bg-marker-100" : "hover:bg-wash-bg"
+      className={`relative flex min-h-11 items-center gap-1 rounded-lg p-2 transition-colors ${
+        // bg-wash-bg, not bg-marker-100: marker-100 never re-themes for dark
+        // mode (see globals.css), so pairing it with theme-adaptive
+        // text-text goes unreadable (light text on a bg that stays light).
+        active ? "bg-wash-bg" : "hover:bg-wash-bg"
       }`}
     >
       {active && <span className="absolute inset-y-1 left-0 w-0.75 rounded-r-full bg-marker-500" />}
-      <Link href={href} className={`flex flex-1 items-center gap-2.5 py-2.5 pl-4 text-[15px] ${active ? "font-semibold text-text" : "font-normal text-text"}`}>
+      <Link href={href} className={`flex flex-1 items-center gap-2.5 text-[15px] ${active ? "font-semibold text-text" : "font-normal text-text"}`}>
         <span className="flex-1">{label}</span>
         <span className="font-mono text-xs text-text-muted">{count}</span>
       </Link>
-      {categoryId && <StudyMarkButton categoryId={categoryId} className="mr-1" />}
+      {categoryId && <StudyMarkButton categoryId={categoryId} />}
     </div>
   );
 }
