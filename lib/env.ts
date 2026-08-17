@@ -47,26 +47,3 @@ function loadEnv(): Env {
 }
 
 export const env = loadEnv();
-
-// Server-only absolute base URL for apiFetch (lib/api/client.ts) — Server
-// Component fetches run in Node, which has no browser location to resolve a
-// relative NEXT_PUBLIC_API_URL against (unlike the client-side RTK Query
-// baseQuery in lib/redux/api.ts, which the browser resolves against the
-// current page origin, hitting the Vercel rewrite proxy). Not read through
-// envSchema above: BACKEND_ORIGIN deliberately has no `NEXT_PUBLIC_` prefix
-// (server-only, never inlined into the client bundle) and this file's own
-// loadEnv() comment explains why only NEXT_PUBLIC_ vars can go through a
-// wholesale `process.env` schema.
-function resolveApiServerBaseUrl(): string {
-  if (!env.NEXT_PUBLIC_API_URL.startsWith("/")) return env.NEXT_PUBLIC_API_URL;
-
-  const backendOrigin = process.env.BACKEND_ORIGIN;
-  if (!backendOrigin) {
-    throw new Error(
-      "BACKEND_ORIGIN is required when NEXT_PUBLIC_API_URL is a relative path (see .env.example)",
-    );
-  }
-  return new URL(env.NEXT_PUBLIC_API_URL, backendOrigin).toString().replace(/\/$/, "");
-}
-
-export const apiServerBaseUrl = resolveApiServerBaseUrl();

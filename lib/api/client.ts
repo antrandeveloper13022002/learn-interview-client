@@ -1,4 +1,4 @@
-import { apiServerBaseUrl } from "@/lib/env";
+import { apiServerBaseUrl } from "@/lib/env.server";
 import type { ApiErrorBody } from "@/lib/types";
 
 /**
