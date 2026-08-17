@@ -1,47 +1,67 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Category } from "@/lib/types";
-import { text } from "@/lib/text";
+import { useText } from "@/lib/text/useText";
 import { DIFFICULTY_OPTIONS } from "@/lib/constants";
+import { PAGE_ROUTES } from "@/lib/routes";
+import { buildFilterHref, type QuestionFilterState } from "@/lib/questionSearchParams";
+import { Dropdown, type DropdownOption } from "@/components/ui/Dropdown";
+import { SearchAutocomplete, type SearchSuggestion } from "@/components/ui/SearchAutocomplete";
+import { TagMultiSelect } from "@/components/questions/TagMultiSelect";
+import { useLazySearchQuestionsQuery } from "@/lib/redux/questionsApi";
+import { useLocale } from "@/lib/routes/useLocale";
+import type { QuestionTagOption } from "@/lib/types";
 
-type CurrentFilters = {
-  category?: string;
-  difficulty?: string;
-  premium?: string;
-  q?: string;
+// Same difficulty→color mapping as QuestionList's DIFFICULTY_BADGE_CLASS —
+// the `-text` token variant (more saturated) reads better as a small solid
+// dot than the `-bg` (pale) variant used for the badge fill.
+const DIFFICULTY_DOT_CLASS: Record<(typeof DIFFICULTY_OPTIONS)[number], string> = {
+  EASY: "bg-correct-text",
+  MEDIUM: "bg-premium-text",
+  HARD: "bg-flag-text",
 };
 
 type QuestionFiltersProps = {
+  // Category isn't a query param here (FU-22) — it's route-level, picked
+  // via TopicSidebar navigating between /questions and /categories/[slug].
+  // `basePath` is whichever of those two pages is currently rendering this.
   basePath: string;
-  categories?: Category[];
-  showCategoryFilter?: boolean;
-  current: CurrentFilters;
+  tagOptions?: QuestionTagOption[];
+  current: QuestionFilterState;
 };
 
-export function QuestionFilters({
-  basePath,
-  categories = [],
-  showCategoryFilter = false,
-  current,
-}: QuestionFiltersProps) {
+export function QuestionFilters({ basePath, tagOptions = [], current }: QuestionFiltersProps) {
   const router = useRouter();
+  const text = useText();
+  const lang = useLocale();
   const [q, setQ] = useState(current.q ?? "");
-  const categoryId = useId();
   const difficultyId = useId();
   const premiumId = useId();
   const searchId = useId();
 
-  function navigate(next: Partial<CurrentFilters>) {
-    const merged = { ...current, ...next };
-    const params = new URLSearchParams();
-    if (merged.category) params.set("category", merged.category);
-    if (merged.difficulty) params.set("difficulty", merged.difficulty);
-    if (merged.premium) params.set("premium", merged.premium);
-    if (merged.q) params.set("q", merged.q);
-    const qs = params.toString();
-    router.push(qs ? `${basePath}?${qs}` : basePath);
+  const selectedTags = current.tag ?? [];
+
+  const [triggerSearch] = useLazySearchQuestionsQuery();
+  const fetchQuestionSuggestions = useCallback(
+    async (query: string): Promise<SearchSuggestion[]> => {
+      const res = await triggerSearch({ q: query, lang }).unwrap();
+      return res.items.map((item) => ({
+        key: item.id,
+        href: PAGE_ROUTES.questionDetail(item.slug),
+        primary: item.title,
+        secondary: text.questions.difficultyLabel[item.difficulty],
+      }));
+    },
+    [triggerSearch, text, lang],
+  );
+
+  function navigate(next: Partial<QuestionFilterState>) {
+    router.push(buildFilterHref(basePath, { ...current, ...next }));
+  }
+
+  function toggleTag(name: string) {
+    navigate({ tag: selectedTags.includes(name) ? selectedTags.filter((t) => t !== name) : [...selectedTags, name] });
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -50,88 +70,111 @@ export function QuestionFilters({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      aria-label={text.questions.filters.formAriaLabel}
-      className="mt-6 flex flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-4 sm:flex-row sm:flex-wrap sm:items-end"
-    >
-      {showCategoryFilter && (
-        <div className="flex flex-col gap-1">
-          <label htmlFor={categoryId} className="text-sm font-medium">
-            {text.questions.filters.categoryLabel}
-          </label>
-          <select
-            id={categoryId}
-            value={current.category ?? ""}
-            onChange={(e) => navigate({ category: e.target.value || undefined })}
-            className="min-h-11 rounded-md border border-neutral-300 px-3"
+    <>
+      {selectedTags.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <span className="font-mono text-xs text-text-muted">{text.questions.filters.activeTagsPrefix}</span>
+          {selectedTags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1.5 rounded-full bg-wash-bg px-2.5 py-1 text-xs font-medium text-wash-text"
+            >
+              {tag}
+              <button
+                type="button"
+                onClick={() => toggleTag(tag)}
+                aria-label={text.questions.filters.removeTagAriaLabel(tag)}
+                className="text-wash-text hover:text-text"
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={() => navigate({ tag: undefined })}
+            className="text-xs font-medium text-text-muted hover:text-text"
           >
-            <option value="">{text.questions.filters.allCategories}</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.slug}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            {text.questions.filters.clearTagsLabel}
+          </button>
         </div>
       )}
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor={difficultyId} className="text-sm font-medium">
-          {text.questions.filters.difficultyLabel}
-        </label>
-        <select
-          id={difficultyId}
-          value={current.difficulty ?? ""}
-          onChange={(e) => navigate({ difficulty: e.target.value || undefined })}
-          className="min-h-11 rounded-md border border-neutral-300 px-3"
-        >
-          <option value="">{text.questions.filters.allDifficulties}</option>
-          {DIFFICULTY_OPTIONS.map((d) => (
-            <option key={d} value={d}>
-              {text.questions.difficultyLabel[d]}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor={premiumId} className="text-sm font-medium">
-          {text.questions.filters.planLabel}
-        </label>
-        <select
-          id={premiumId}
-          value={current.premium ?? ""}
-          onChange={(e) => navigate({ premium: e.target.value || undefined })}
-          className="min-h-11 rounded-md border border-neutral-300 px-3"
-        >
-          <option value="">{text.questions.filters.allPlans}</option>
-          <option value="false">{text.questions.filters.freePlan}</option>
-          <option value="true">{text.questions.filters.premiumPlan}</option>
-        </select>
-      </div>
-
-      <div className="flex flex-1 flex-col gap-1">
-        <label htmlFor={searchId} className="text-sm font-medium">
-          {text.questions.filters.searchLabel}
-        </label>
-        <div className="flex gap-2">
-          <input
-            id={searchId}
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={text.questions.filters.searchPlaceholder}
-            className="min-h-11 w-full rounded-md border border-neutral-300 px-3"
+      <form
+        onSubmit={handleSubmit}
+        aria-label={text.questions.filters.formAriaLabel}
+        className="mt-6 flex flex-col gap-4 rounded-lg border border-border bg-surface p-4 shadow-(--shadow-border) sm:flex-row sm:flex-wrap sm:items-end"
+      >
+        <div className="flex flex-col gap-1">
+          <label htmlFor={difficultyId} className="text-sm font-medium text-text">
+            {text.questions.filters.difficultyLabel}
+          </label>
+          <Dropdown
+            id={difficultyId}
+            value={current.difficulty ?? ""}
+            placeholder={text.questions.filters.allDifficulties}
+            onChange={(v) => navigate({ difficulty: v || undefined })}
+            options={DIFFICULTY_OPTIONS.map(
+              (d): DropdownOption => ({
+                value: d,
+                label: text.questions.difficultyLabel[d],
+                dotClassName: DIFFICULTY_DOT_CLASS[d],
+              }),
+            )}
           />
-          <button
-            type="submit"
-            className="min-h-11 shrink-0 rounded-md border border-neutral-300 px-4 font-medium"
-          >
-            {text.questions.filters.searchSubmit}
-          </button>
         </div>
-      </div>
-    </form>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor={premiumId} className="text-sm font-medium text-text">
+            {text.questions.filters.planLabel}
+          </label>
+          <Dropdown
+            id={premiumId}
+            value={current.premium ?? ""}
+            placeholder={text.questions.filters.allPlans}
+            onChange={(v) => navigate({ premium: v || undefined })}
+            options={[
+              { value: "false", label: text.questions.filters.freePlan },
+              { value: "true", label: text.questions.filters.premiumPlan },
+            ]}
+          />
+        </div>
+
+        {tagOptions.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium text-text">{text.questions.filters.tagLabel}</span>
+            <TagMultiSelect
+              options={tagOptions}
+              selected={selectedTags}
+              onToggle={toggleTag}
+              onClear={() => navigate({ tag: undefined })}
+            />
+          </div>
+        )}
+
+        <div className="flex flex-1 flex-col gap-1">
+          <label htmlFor={searchId} className="text-sm font-medium text-text">
+            {text.questions.filters.searchLabel}
+          </label>
+          <div className="flex gap-2">
+            <SearchAutocomplete
+              id={searchId}
+              ariaLabel={text.questions.filters.searchLabel}
+              value={q}
+              onChange={setQ}
+              fetchSuggestions={fetchQuestionSuggestions}
+              placeholder={text.questions.filters.searchPlaceholder}
+              className="flex-1"
+            />
+            <button
+              type="submit"
+              className="min-h-11 shrink-0 rounded-md bg-marker-500 px-4 font-semibold text-ink-950 hover:bg-marker-600"
+            >
+              {text.questions.filters.searchSubmit}
+            </button>
+          </div>
+        </div>
+      </form>
+    </>
   );
 }

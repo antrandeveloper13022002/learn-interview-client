@@ -21,8 +21,13 @@ const authSlice = createSlice({
       state.user = null;
       state.isBootstrapped = true;
     },
+    // FU-17 — after a successful PATCH /me/profile, no need to re-fetch or
+    // re-establish the whole session over one field.
+    displayNameUpdated(state, action: PayloadAction<string | null>) {
+      if (state.user) state.user.displayName = action.payload;
+    },
   },
 });
 
-export const { sessionEstablished, sessionCleared } = authSlice.actions;
+export const { sessionEstablished, sessionCleared, displayNameUpdated } = authSlice.actions;
 export const authReducer = authSlice.reducer;

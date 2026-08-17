@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useForgotPasswordMutation } from "@/lib/redux/authApi";
-import { text } from "@/lib/text";
+import { useText } from "@/lib/text/useText";
 
 export function ForgotPasswordForm() {
+  const text = useText();
   const [email, setEmail] = useState("");
   const [forgotPassword, { isLoading, isSuccess, isError }] = useForgotPasswordMutation();
 
@@ -19,9 +20,9 @@ export function ForgotPasswordForm() {
   // (business-rule.md / security.md, same class as BE-04's login guard).
   if (isSuccess) {
     return (
-      <div role="status" className="rounded-lg border border-neutral-200 bg-white p-6 text-center">
-        <p className="font-semibold">{text.auth.forgotPassword.success.title}</p>
-        <p className="mt-2 text-sm text-neutral-600">
+      <div role="status" className="rounded-lg border border-border bg-bg p-6 text-center">
+        <p className="font-semibold text-text">{text.auth.forgotPassword.success.title}</p>
+        <p className="mt-2 text-sm text-text-muted">
           {text.auth.forgotPassword.success.bodyBeforeEmail}
           <strong>{email}</strong>
           {text.auth.forgotPassword.success.bodyAfterEmail}
@@ -33,13 +34,13 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4" aria-busy={isLoading}>
       {isError && (
-        <div role="alert" className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div role="alert" className="rounded-md bg-flag-bg px-4 py-3 text-sm text-flag-text">
           {text.common.networkError}
         </div>
       )}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="forgot-email" className="text-sm font-semibold">
+        <label htmlFor="forgot-email" className="text-sm font-semibold text-text">
           {text.auth.forgotPassword.emailLabel}
         </label>
         <input
@@ -49,14 +50,14 @@ export function ForgotPasswordForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="min-h-11 rounded-md border border-neutral-300 px-3"
+          className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
         />
       </div>
 
       <button
         type="submit"
         disabled={isLoading}
-        className="min-h-11 rounded-md bg-blue-700 font-semibold text-white disabled:opacity-60"
+        className="min-h-11 rounded-md bg-marker-500 font-semibold text-ink-950 hover:bg-marker-600 disabled:opacity-60"
       >
         {isLoading ? text.auth.forgotPassword.submitLoading : text.auth.forgotPassword.submitLabel}
       </button>

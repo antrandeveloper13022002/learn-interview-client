@@ -1,26 +1,233 @@
 @import "tailwindcss";
 
+/* ============ Design tokens ============
+   Ported from docs/design/frontend-user-mockup.html's 2026-08-04 redesign —
+   see project memory `project_design_redesign_20260804.md` for the full
+   rationale. Signature idea: a stack of study flashcards for a coding
+   interview, not a generic SaaS dashboard. Palette named by material, not
+   just numbered (better-colors): paper, ink, marker (the signature
+   highlighter accent — dark ink text sits on it, never white), correct,
+   flag. OKLCH throughout.
+
+   Light + dark via [data-theme] (toggled by ThemeToggle, initialized
+   pre-hydration by the inline script in layout.tsx). Dark tokens are
+   retuned per-role, not a mechanical reversal of the light scale
+   (palette-generation.md's "Dark mode" section) — raw --paper-0/--ink-950
+   stay fixed in both themes on purpose: a couple of components
+   (`.cta-band`-equivalent surfaces) want an always-inverted dark-chip +
+   paper-text look regardless of page theme. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Paper: warm off-white, not clinical white. */
+  --paper-0: oklch(1 0.004 80);
+  --paper-50: oklch(0.978 0.008 78);
+  --paper-100: oklch(0.955 0.011 78);
+  --paper-200: oklch(0.91 0.015 76);
+  --paper-300: oklch(0.83 0.018 74);
+  --paper-400: oklch(0.64 0.018 70);
+
+  /* Ink: warm near-black, not cold blue-black. */
+  --ink-600: oklch(0.5 0.022 55);
+  --ink-800: oklch(0.32 0.02 55);
+  --ink-950: oklch(0.2 0.018 55);
+
+  /* Marker: the signature highlighter-pen amber. Dark ink text sits on it,
+     never white — a highlighter is never covered by white ink. */
+  --marker-100: oklch(0.93 0.05 80);
+  --marker-300: oklch(0.85 0.1 78);
+  --marker-500: oklch(0.78 0.15 75);
+  --marker-600: oklch(0.7 0.16 68);
+  --marker-700: oklch(0.55 0.15 55);
+
+  --correct-500: oklch(0.62 0.13 150);
+  --correct-bg: oklch(0.95 0.035 150);
+  --correct-text: oklch(0.36 0.08 150);
+
+  --flag-600: oklch(0.58 0.19 25);
+  --flag-bg: oklch(0.955 0.03 20);
+  --flag-text: oklch(0.42 0.16 20);
+
+  --premium-bg: var(--marker-100);
+  --premium-text: var(--marker-700);
+  --premium-icon: oklch(0.5 0.12 60);
+
+  /* Pale-wash-behind-an-icon role — kept separate from raw --marker-* so a
+     fixed always-inverted surface (if one reuses --marker-100 for a hover
+     tint) doesn't get pulled into re-theming along with this token. */
+  --wash-bg: var(--marker-100);
+  --wash-text: var(--marker-700);
+
+  --color-bg: var(--paper-50);
+  --color-surface: var(--paper-0);
+  --color-border: var(--paper-200);
+  --color-text: var(--ink-950);
+  --color-text-muted: var(--ink-600);
+  --focus-ring: var(--marker-700);
+
+  --shadow-border: 0px 0px 0px 1px oklch(0.3 0.02 55 / 0.08), 0px 1px 2px -1px oklch(0.3 0.02 55 / 0.08),
+    0px 2px 4px 0px oklch(0.3 0.02 55 / 0.05);
+  --shadow-border-hover: 0px 0px 0px 1px oklch(0.3 0.02 55 / 0.1), 0px 1px 2px -1px oklch(0.3 0.02 55 / 0.1),
+    0px 2px 4px 0px oklch(0.3 0.02 55 / 0.07);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --marker-500: oklch(0.72 0.15 75);
+  --marker-600: oklch(0.78 0.14 72);
+  --marker-700: oklch(0.82 0.11 78);
+
+  --paper-200: oklch(0.33 0.014 65);
+  --paper-300: oklch(0.43 0.016 65);
+  --paper-400: oklch(0.58 0.016 65);
+
+  --wash-bg: oklch(0.3 0.05 70);
+  --wash-text: oklch(0.83 0.1 75);
+
+  --correct-bg: oklch(0.28 0.05 150);
+  --correct-text: oklch(0.82 0.1 150);
+
+  --flag-bg: oklch(0.3 0.07 20);
+  --flag-text: oklch(0.83 0.1 20);
+
+  --premium-bg: oklch(0.3 0.05 70);
+  --premium-text: oklch(0.83 0.1 75);
+  --premium-icon: oklch(0.76 0.1 65);
+
+  --color-bg: oklch(0.17 0.014 55);
+  --color-surface: oklch(0.22 0.016 55);
+  --color-border: oklch(0.33 0.018 55);
+  --color-text: oklch(0.95 0.006 70);
+  --color-text-muted: oklch(0.68 0.016 65);
+  --focus-ring: oklch(0.75 0.13 72);
+
+  --shadow-border: 0px 0px 0px 1px oklch(1 0 0 / 0.08), 0px 1px 2px -1px oklch(0 0 0 / 0.4),
+    0px 2px 4px 0px oklch(0 0 0 / 0.3);
+  --shadow-border-hover: 0px 0px 0px 1px oklch(1 0 0 / 0.14), 0px 1px 2px -1px oklch(0 0 0 / 0.45),
+    0px 2px 4px 0px oklch(0 0 0 / 0.35);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-space-grotesk);
+  --font-body: var(--font-be-vietnam-pro);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --color-paper-0: var(--paper-0);
+  --color-paper-50: var(--paper-50);
+  --color-paper-100: var(--paper-100);
+  --color-paper-200: var(--paper-200);
+  --color-paper-300: var(--paper-300);
+  --color-paper-400: var(--paper-400);
+  --color-ink-600: var(--ink-600);
+  --color-ink-800: var(--ink-800);
+  --color-ink-950: var(--ink-950);
+  --color-marker-100: var(--marker-100);
+  --color-marker-300: var(--marker-300);
+  --color-marker-500: var(--marker-500);
+  --color-marker-600: var(--marker-600);
+  --color-marker-700: var(--marker-700);
+  --color-correct-500: var(--correct-500);
+  --color-correct-bg: var(--correct-bg);
+  --color-correct-text: var(--correct-text);
+  --color-flag-600: var(--flag-600);
+  --color-flag-bg: var(--flag-bg);
+  --color-flag-text: var(--flag-text);
+  --color-premium-bg: var(--premium-bg);
+  --color-premium-text: var(--premium-text);
+  --color-premium-icon: var(--premium-icon);
+  --color-wash-bg: var(--wash-bg);
+  --color-wash-text: var(--wash-text);
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-focus-ring: var(--focus-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Tailwind v4's own recommended default-border-color shim (matches the
+   pre-v4 global border-color default) — must live in `@layer base`, not as
+   a bare rule: unlayered CSS outranks every `@layer utilities` rule
+   regardless of specificity, so a bare `* { border-color }` here silently
+   wins over *every* `border-{color}` utility in the app (e.g.
+   `border-marker-600`), always rendering the default border-color no
+   matter what color utility is applied. */
+@layer base {
+  * {
+    border-color: var(--color-border);
   }
 }
 
+/* Theme-aware since 2026-08-13 — was deliberately fixed-light at FU-16
+   time (some pages still hardcoded unthemed `bg-white` cards then, so
+   following [data-theme] here would've made them invisible-text-on-white
+   in dark mode). That's no longer true: every page now sets its own colors
+   explicitly via the --color-* tokens (grep confirms no remaining
+   `bg-white` usage anywhere in app/ or components/). Following the theme
+   here is what fixes the real bug this was found for: a short-content page
+   (e.g. an empty bookmarks/my-submissions list) doesn't reliably fill
+   `<main>`'s full flex-allocated height via its own `min-h-full` wrapper,
+   leaving a gap below it — that gap now matches the current theme instead
+   of always rendering pure white, in either mode. */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body), "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+code {
+  font-family: var(--font-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  background: var(--color-border);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Highlighter mark: a rough, hand-drawn-feeling stroke behind a key phrase —
+   the signature accent applied to text, not a plain underline. */
+.mark {
+  position: relative;
+  white-space: nowrap;
+}
+.mark::before {
+  content: "";
+  position: absolute;
+  inset-inline: -0.1em;
+  bottom: 0.06em;
+  height: 0.34em;
+  background: var(--marker-500);
+  border-radius: 2px 6px 3px 7px;
+  z-index: -1;
+  transform: rotate(-0.6deg);
+}
+
+.site-header {
+  background: color-mix(in oklch, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* Always dark-ink, in both themes — in dark mode the page background is
+   already near-black, so pull this a shade darker than the fixed --ink-950
+   or the band loses its "one bold moment" contrast against the page. */
+.cta-band {
+  background: var(--ink-950);
+}
+:root[data-theme="dark"] .cta-band {
+  background: oklch(0.08 0.012 55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
