@@ -562,6 +562,10 @@ export const vi = {
     categoriesCaption: "Chọn một chủ đề để bắt đầu luyện tập.",
     categoriesQuestionCount: (total: number) => `(${total} câu hỏi)`,
     categoriesViewAll: "Xem tất cả →",
+    // Chỉ hiện với người đã đăng nhập — mục "Chủ đề đang ôn" trên trang chủ.
+    studyingHeading: "Chủ đề đang ôn",
+    studyingEmptyTitle: "Bạn chưa đánh dấu chủ đề nào",
+    studyingEmptyBody: "Bấm vào biểu tượng ⭐ cạnh một chủ đề trong danh sách bên trái trang Câu hỏi để đánh dấu đang ôn — lần sau quay lại sẽ thấy ngay ở đây.",
     benefits: [
       {
         title: "Luyện tập có định hướng",

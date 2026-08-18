@@ -5,6 +5,7 @@ import { PAGE_ROUTES } from "@/lib/routes";
 import { SUPPORTED_LOCALES, localizedPath, resolveLocale } from "@/lib/routes/locale";
 import { APP_NAME, PAYMENTS_ENABLED } from "@/lib/constants";
 import { getCategories, getQuestions } from "@/lib/api/questions";
+import { StudyingTopicsSection } from "@/components/questions/StudyingTopicsSection";
 import { TargetIcon, ChatIcon, BookmarkIcon, SearchIcon, CheckIcon, ArrowRightIcon } from "@/components/icons";
 
 type Props = {
@@ -109,6 +110,8 @@ export default async function Home({ params }: Props) {
           </div>
         </div>
       </section>
+
+      <StudyingTopicsSection categories={categories} />
 
       {/* ======================= Topics ======================= */}
       {categories.length > 0 && (

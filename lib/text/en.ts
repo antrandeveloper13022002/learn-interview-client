@@ -545,6 +545,10 @@ export const en = {
     categoriesCaption: "Pick a topic to start practicing.",
     categoriesQuestionCount: (total: number) => `(${total} questions)`,
     categoriesViewAll: "View all →",
+    // Logged-in only — homepage "Topics you're studying" section.
+    studyingHeading: "Topics you're studying",
+    studyingEmptyTitle: "You haven't marked any topics yet",
+    studyingEmptyBody: "Click the ⭐ next to a topic in the Questions page's sidebar to mark it as studying — it'll show up here next time you're back.",
     benefits: [
       {
         title: "Focused practice",

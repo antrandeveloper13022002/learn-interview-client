@@ -19,8 +19,11 @@ export const studyMarksApi = api.injectEndpoints({
       // from a fast double-click is harmless.
       async onQueryStarted(categoryId, { dispatch, queryFulfilled }) {
         const patch = dispatch(
+          // unshift, not push — the backend orders this list most-recently
+          // -marked-first (interview.repository.ts's findStudiedCategoryIds),
+          // and a fresh mark is the most recent one by definition.
           studyMarksApi.util.updateQueryData("getMyStudiedCategories", undefined, (draft) => {
-            if (!draft.includes(categoryId)) draft.push(categoryId);
+            if (!draft.includes(categoryId)) draft.unshift(categoryId);
           }),
         );
         try {
