@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/components/i18n/LocaleLink";
 import { useLocalizedRouter } from "@/lib/routes/useLocale";
-import { useRefreshMutation } from "@/lib/redux/authApi";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { useText } from "@/lib/text/useText";
 import { PAGE_ROUTES } from "@/lib/routes";
 
@@ -15,23 +15,32 @@ import { PAGE_ROUTES } from "@/lib/routes";
 // user always lands back on /vi after Google sign-in regardless of which
 // locale they started from — a known limitation, not a bug, since Google's
 // redirect carries no locale state.
+//
+// Deliberately does NOT call useRefreshMutation itself (2026-08-18 fix) —
+// SessionBootstrap already fires exactly one refresh() on every page load,
+// this one included (a full browser navigation from Google's redirect
+// remounts the whole app). A second, independent refresh() call here raced
+// it: the refresh token is single-use/rotating, so whichever call the
+// backend processed second always got 401'd, and authApi.ts's refresh
+// mutation unconditionally dispatches sessionCleared() on failure —
+// wiping out the session the *other* call had just established a moment
+// earlier. Watching SessionBootstrap's own result instead means there is
+// only ever one refresh call on this page, so there is nothing left to
+// race.
 export function GoogleCallbackStatus() {
   const text = useText();
   const params = useSearchParams();
   const router = useLocalizedRouter();
-  const [refresh] = useRefreshMutation();
-  const attempted = useRef(false);
-  const [failed, setFailed] = useState(params.get("error") === "1");
+  const isBootstrapped = useAppSelector((s) => s.auth.isBootstrapped);
+  const accessToken = useAppSelector((s) => s.auth.accessToken);
+  const backendFailed = params.get("error") === "1";
+  const failed = backendFailed || (isBootstrapped && !accessToken);
 
   useEffect(() => {
-    if (attempted.current || failed) return;
-    attempted.current = true;
-    refresh()
-      .unwrap()
-      .then(() => router.replace(PAGE_ROUTES.home))
-      .catch(() => setFailed(true));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [failed]);
+    if (!backendFailed && isBootstrapped && accessToken) {
+      router.replace(PAGE_ROUTES.home);
+    }
+  }, [backendFailed, isBootstrapped, accessToken, router]);
 
   if (failed) {
     return (
