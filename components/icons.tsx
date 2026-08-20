@@ -293,3 +293,12 @@ export function ThumbsUpIcon({ className, filled }: IconProps & { filled?: boole
     </svg>
   );
 }
+
+export function ReceiptIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M6 3h12v17l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4V3Z" />
+      <path d="M8.5 8h7M8.5 12h7" />
+    </svg>
+  );
+}

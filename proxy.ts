@@ -24,14 +24,17 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Exclude: Next internals, static files, metadata files, and the two
-    // fixed-URL external callback targets (MoMo return, Google OAuth
-    // callback) that must stay unprefixed — see tasks/frontend-user.md
-    // FU-19's note on why those can't move under [lang]. `icon.svg` added
-    // 2026-08-20 (FU-37) — this list is an explicit allowlist-by-exclusion,
-    // not a magic pattern, so any new root-level metadata file convention
-    // (favicon/icon/apple-icon/opengraph-image/...) needs adding here too
-    // or it silently 404s via a bogus /<locale>/<file> redirect.
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap.xml|api|checkout/return|auth/google/callback).*)",
+    // Exclude: Next internals, static files, metadata files, and the
+    // fixed-URL external callback targets (MoMo return, the fake-payment
+    // confirm page, Google OAuth callback) that must stay unprefixed — see
+    // tasks/frontend-user.md FU-19's note on why those can't move under
+    // [lang]. `checkout/fake` added 2026-08-20 (BE-75/FU-40) — same
+    // "redirect target, not a locale-routed page" reasoning as
+    // `checkout/return`. `icon.svg` added 2026-08-20 (FU-37) — this list is
+    // an explicit allowlist-by-exclusion, not a magic pattern, so any new
+    // root-level metadata file convention (favicon/icon/apple-icon/
+    // opengraph-image/...) needs adding here too or it silently 404s via a
+    // bogus /<locale>/<file> redirect.
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap.xml|api|checkout/return|checkout/fake|auth/google/callback).*)",
   ],
 };

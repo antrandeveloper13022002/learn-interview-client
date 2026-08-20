@@ -14,6 +14,7 @@ export const en = {
     bookmarksLink: "Saved questions",
     contributeLink: "Contribute",
     mySubmissionsLink: "My submissions",
+    paymentHistoryLink: "Payment history",
     notificationsLabel: "Notifications",
     accountMenuLabel: "Account menu",
     profileLink: "Profile",
@@ -265,7 +266,9 @@ export const en = {
       ariaLabel: "Pagination",
       prev: "Previous",
       next: "Next",
-      pageOf: (page: number, totalPages: number) => `Page ${page} / ${totalPages}`,
+      pagePrefix: "Page",
+      jumpAriaLabel: "Enter a page number to jump to",
+      goButton: "Go",
     },
   },
   companies: {
@@ -353,6 +356,28 @@ export const en = {
       signedOutTitle: "Log in to see saved questions",
       signedOutBody: "You need to log in to save and review questions.",
     },
+  },
+  // BE-78/FU-44 (2026-08-21) — every attempt shown, not just successful
+  // ones (confirmed via AskUserQuestion), so a user can self-serve "why
+  // did this charge fail" instead of only ever seeing successful rows.
+  paymentHistory: {
+    pageTitle: "Payment history",
+    pageHeading: "Payment history",
+    pageIntro: "Every Premium payment attempt on your account, including ones that didn't succeed.",
+    loadingSrOnly: "Loading payment history…",
+    emptyTitle: "No transactions yet",
+    emptyBody: "Your payment history will appear here once you upgrade to Premium.",
+    browseSubscribeLink: "View pricing",
+    errorTitle: "Couldn't load payment history",
+    errorBody: "Check your network and try again.",
+    signedOutTitle: "Log in to see your payment history",
+    signedOutBody: "You need to log in to review your past transactions.",
+    statusLabel: {
+      SUCCESS: "Succeeded",
+      FAILED: "Failed",
+      PENDING: "Processing",
+      REFUNDED: "Refunded",
+    } as Record<string, string>,
   },
   profile: {
     pageTitle: "Your profile",
@@ -458,6 +483,10 @@ export const en = {
           return `${planLabel(payload.planName)} was activated successfully.`;
         case "PaymentFailed":
           return `Payment for ${planLabel(payload.planName)} failed. Please try again.`;
+        case "SubmissionApproved": {
+          const title = typeof payload.questionTitle === "string" ? payload.questionTitle : "";
+          return `Your contributed question "${title}" was approved and published!`;
+        }
         default:
           return "You have a new notification.";
       }
@@ -540,7 +569,12 @@ export const en = {
         bodyLifetime: "Your Lifetime plan never expires.",
         bodyWithExpiry: (date: string) => `Your current plan is valid until ${date}.`,
       },
+      // Shown instead of "Choose this plan" once the user already owns
+      // Lifetime — buying anything else can never add value on top of it.
+      currentPlanBadge: "✓ Your current plan",
+      lifetimeOwnedCta: "Already have Lifetime — no need to buy",
       checkoutError: "Couldn't start checkout. Please try again.",
+      alreadyLifetimeError: "You already have the Lifetime plan — no other plan can add to it.",
     },
     callback: {
       pageTitle: "Confirming payment",
@@ -548,6 +582,9 @@ export const en = {
       confirmingBody: "Confirming your payment with MoMo. Please wait a moment…",
       successTitle: "Payment successful",
       successBody: "Your account has been upgraded to Premium.",
+      premiumAccessLabel: "Premium Access",
+      neverExpiresLabel: "Never expires",
+      validUntilLabel: (date: string) => `Valid until ${date}`,
       goToQuestionsLink: "See Premium questions",
       pendingTitle: "Payment confirmation not received yet",
       pendingBody:
@@ -556,6 +593,21 @@ export const en = {
       backToSubscribeLink: "Back to plan selection",
       signedOutTitle: "Couldn't determine your session",
       signedOutBody: "Log in again to check your payment status.",
+    },
+    // BE-75/FU-40 — the fake-payment-provider confirmation page.
+    fakeCheckout: {
+      pageTitle: "Test payment",
+      badgeLabel: "🧪 Test mode",
+      heading: "Test payment",
+      body: "This is a test payment environment — no real transaction has been made. Click confirm below to activate the Premium plan right away.",
+      amountLabel: "Amount",
+      confirmLabel: "Confirm payment",
+      confirmingLabel: "Confirming…",
+      errorBody: "Couldn't confirm the payment. Please try again.",
+      retryLabel: "Try again",
+      cancelLink: "Cancel, back to plan selection",
+      missingTxnTitle: "Missing transaction info",
+      missingTxnBody: "This payment link is invalid or has expired.",
     },
   },
   home: {

@@ -23,3 +23,16 @@ export type SubscriptionStatus = {
 
 export type CheckoutRequest = { planId: string };
 export type CheckoutResponse = { redirectUrl: string };
+
+// BE-78/FU-44 — GET /me/payments. Every attempt is included, not just
+// SUCCESS (confirmed via AskUserQuestion) — a real billing-history view.
+export type PaymentHistoryEntry = {
+  id: string;
+  planCode: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  status: "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
+  provider: string;
+  createdAt: string;
+};

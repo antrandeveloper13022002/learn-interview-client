@@ -8,7 +8,14 @@ import { formatUsd, formatVnd } from "@/lib/format";
 import { useText } from "@/lib/text/useText";
 import { PAGE_ROUTES } from "@/lib/routes";
 import { CheckIcon, LockIcon } from "@/components/icons";
-import type { SubscriptionPlan } from "@/lib/types";
+import type { ApiErrorBody, SubscriptionPlan } from "@/lib/types";
+
+function errorCodeFrom(err: unknown): string | undefined {
+  if (err && typeof err === "object" && "data" in err) {
+    return (err as { data?: ApiErrorBody }).data?.error.code;
+  }
+  return undefined;
+}
 
 type PlanSelectorProps = {
   plans: SubscriptionPlan[];
@@ -28,11 +35,15 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
   const { data: subscription } = useGetMySubscriptionQuery(undefined, { skip: !accessToken });
   const [checkout, { isLoading: isCheckingOut }] = useCheckoutMutation();
   const [pendingPlanId, setPendingPlanId] = useState<string | null>(null);
-  const [checkoutFailed, setCheckoutFailed] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<"generic" | "alreadyLifetime" | null>(null);
+  // `currentPeriodEnd: null` on an active row is exactly how "Lifetime" is
+  // represented (schema.prisma: "null = lifetime, never expires") — same
+  // convention the backend's own createCheckout guard uses.
+  const isLifetimeMember = Boolean(subscription?.hasActiveSubscription && subscription.currentPeriodEnd === null);
 
   async function handleSelect(plan: SubscriptionPlan): Promise<void> {
     if (isCheckingOut) return; // one in-flight checkout at a time, across every plan button
-    setCheckoutFailed(false);
+    setCheckoutError(null);
     setPendingPlanId(plan.id);
     try {
       const result = await checkout({ planId: plan.id }).unwrap();
@@ -43,8 +54,8 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
       // direct assignment to `window.location` as an external mutation; the
       // method call form is behaviorally identical and satisfies the rule.
       window.location.assign(result.redirectUrl);
-    } catch {
-      setCheckoutFailed(true);
+    } catch (err) {
+      setCheckoutError(errorCodeFrom(err) === "ALREADY_LIFETIME_MEMBER" ? "alreadyLifetime" : "generic");
       setPendingPlanId(null);
     }
   }
@@ -64,9 +75,9 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
         </div>
       )}
 
-      {checkoutFailed && (
+      {checkoutError && (
         <p role="alert" className="mb-4 text-sm text-flag-text">
-          {text.subscription.subscribe.checkoutError}
+          {checkoutError === "alreadyLifetime" ? text.subscription.subscribe.alreadyLifetimeError : text.subscription.subscribe.checkoutError}
         </p>
       )}
 
@@ -147,7 +158,16 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
                     </span>
                   </p>
 
-                  {isBootstrapped && !accessToken ? (
+                  {isLifetimeMember ? (
+                    <span
+                      aria-disabled="true"
+                      className={`mt-4 flex min-h-11 items-center justify-center rounded-md px-5 py-2 text-center font-semibold ${
+                        plan.isLifetime ? "bg-wash-bg text-wash-text" : "border border-border text-text-muted opacity-60"
+                      }`}
+                    >
+                      {plan.isLifetime ? text.subscription.subscribe.currentPlanBadge : text.subscription.subscribe.lifetimeOwnedCta}
+                    </span>
+                  ) : isBootstrapped && !accessToken ? (
                     <Link
                       href={PAGE_ROUTES.login}
                       className="mt-4 inline-flex min-h-11 items-center justify-center rounded-md bg-marker-500 px-5 py-2 text-center font-semibold text-ink-950 hover:bg-marker-600"

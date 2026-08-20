@@ -19,6 +19,7 @@ export const PAGE_ROUTES = {
   contribute: "/contribute",
   mySubmissions: "/my-submissions",
   notificationPreferences: "/notification-preferences",
+  paymentHistory: "/payment-history",
   subscribe: "/subscribe",
   /** Must match the backend's `MOMO_REDIRECT_URL` env value exactly (was
    * `VNPAY_RETURN_URL` before 2026-08-17 — see

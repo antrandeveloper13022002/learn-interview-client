@@ -6,7 +6,7 @@ import { PAGE_ROUTES } from "@/lib/routes";
 import { useLogoutMutation } from "@/lib/redux/authApi";
 import { useText } from "@/lib/text/useText";
 import { Avatar } from "@/components/ui/Avatar";
-import { BookmarkIcon, PencilIcon, UserIcon, LogoutIcon, ChevronDownIcon } from "@/components/icons";
+import { BookmarkIcon, PencilIcon, ReceiptIcon, UserIcon, LogoutIcon, ChevronDownIcon } from "@/components/icons";
 import type { SessionUser } from "@/lib/types";
 
 type UserMenuProps = { user: SessionUser };
@@ -160,6 +160,16 @@ export function UserMenu({ user }: UserMenuProps) {
           >
             <PencilIcon className="size-4.5 shrink-0" />
             {text.header.mySubmissionsLink}
+          </Link>
+          <Link
+            href={PAGE_ROUTES.paymentHistory}
+            role="menuitem"
+            tabIndex={-1}
+            onClick={() => setOpen(false)}
+            className="flex min-h-10 items-center gap-2.5 rounded-sm px-2.5 text-sm font-medium text-text hover:bg-wash-bg focus-visible:bg-wash-bg focus-visible:outline-none"
+          >
+            <ReceiptIcon className="size-4.5 shrink-0" />
+            {text.header.paymentHistoryLink}
           </Link>
           <Link
             href={PAGE_ROUTES.profile}

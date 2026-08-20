@@ -13,6 +13,7 @@ export const vi = {
     bookmarksLink: "Câu hỏi đã lưu",
     contributeLink: "Đóng góp",
     mySubmissionsLink: "Bài đã đóng góp",
+    paymentHistoryLink: "Lịch sử thanh toán",
     notificationsLabel: "Thông báo",
     accountMenuLabel: "Menu tài khoản",
     profileLink: "Hồ sơ",
@@ -264,7 +265,9 @@ export const vi = {
       ariaLabel: "Phân trang",
       prev: "Trước",
       next: "Sau",
-      pageOf: (page: number, totalPages: number) => `Trang ${page} / ${totalPages}`,
+      pagePrefix: "Trang",
+      jumpAriaLabel: "Nhập số trang muốn đến",
+      goButton: "Đi",
     },
   },
   companies: {
@@ -357,6 +360,28 @@ export const vi = {
       signedOutTitle: "Đăng nhập để xem câu hỏi đã lưu",
       signedOutBody: "Bạn cần đăng nhập để lưu và xem lại câu hỏi.",
     },
+  },
+  // BE-78/FU-44 (2026-08-21) — every attempt shown, not just successful
+  // ones (confirmed via AskUserQuestion), so a user can self-serve "why
+  // did this charge fail" instead of only ever seeing successful rows.
+  paymentHistory: {
+    pageTitle: "Lịch sử thanh toán",
+    pageHeading: "Lịch sử thanh toán",
+    pageIntro: "Toàn bộ các lần thanh toán gói Premium của bạn, kể cả những lần không thành công.",
+    loadingSrOnly: "Đang tải lịch sử thanh toán…",
+    emptyTitle: "Bạn chưa có giao dịch nào",
+    emptyBody: "Lịch sử thanh toán sẽ xuất hiện ở đây sau khi bạn nâng cấp Premium.",
+    browseSubscribeLink: "Xem bảng giá",
+    errorTitle: "Không thể tải lịch sử thanh toán",
+    errorBody: "Kiểm tra mạng và thử lại.",
+    signedOutTitle: "Đăng nhập để xem lịch sử thanh toán",
+    signedOutBody: "Bạn cần đăng nhập để xem lại các giao dịch của mình.",
+    statusLabel: {
+      SUCCESS: "Thành công",
+      FAILED: "Thất bại",
+      PENDING: "Đang xử lý",
+      REFUNDED: "Đã hoàn tiền",
+    } as Record<string, string>,
   },
   // FU-17 (2026-08-06) — self-service displayName edit, confirmed optional
   // and not part of registration.
@@ -473,6 +498,10 @@ export const vi = {
           return `${planLabel(payload.planName)} đã được kích hoạt thành công.`;
         case "PaymentFailed":
           return `Thanh toán cho ${planLabel(payload.planName)} không thành công. Vui lòng thử lại.`;
+        case "SubmissionApproved": {
+          const title = typeof payload.questionTitle === "string" ? payload.questionTitle : "";
+          return `Câu hỏi bạn đóng góp "${title}" đã được duyệt và xuất bản!`;
+        }
         default:
           return "Bạn có một thông báo mới.";
       }
@@ -557,7 +586,12 @@ export const vi = {
         bodyLifetime: "Gói Trọn đời của bạn không bao giờ hết hạn.",
         bodyWithExpiry: (date: string) => `Gói hiện tại của bạn còn hiệu lực đến ${date}.`,
       },
+      // Shown instead of "Chọn gói này" once the user already owns Gói Trọn
+      // đời — mua thêm bất kỳ gói nào khác cũng không cộng thêm quyền lợi gì.
+      currentPlanBadge: "✓ Gói hiện tại của bạn",
+      lifetimeOwnedCta: "Đã có Trọn đời — không cần mua",
       checkoutError: "Không thể bắt đầu thanh toán. Vui lòng thử lại.",
+      alreadyLifetimeError: "Bạn đã có Gói Trọn đời — không cần mua thêm gói nào khác.",
     },
     callback: {
       pageTitle: "Đang xác nhận thanh toán",
@@ -565,6 +599,9 @@ export const vi = {
       confirmingBody: "Đang xác nhận thanh toán với MoMo. Vui lòng đợi trong giây lát…",
       successTitle: "Thanh toán thành công",
       successBody: "Tài khoản của bạn đã được nâng cấp Premium.",
+      premiumAccessLabel: "Premium Access",
+      neverExpiresLabel: "Không bao giờ hết hạn",
+      validUntilLabel: (date: string) => `Có hiệu lực đến ${date}`,
       goToQuestionsLink: "Xem câu hỏi Premium",
       pendingTitle: "Chưa nhận được xác nhận thanh toán",
       pendingBody:
@@ -573,6 +610,21 @@ export const vi = {
       backToSubscribeLink: "Quay lại chọn gói",
       signedOutTitle: "Không xác định được phiên đăng nhập",
       signedOutBody: "Đăng nhập lại để kiểm tra trạng thái thanh toán của bạn.",
+    },
+    // BE-75/FU-40 — the fake-payment-provider confirmation page.
+    fakeCheckout: {
+      pageTitle: "Thanh toán thử nghiệm",
+      badgeLabel: "🧪 Chế độ thử nghiệm",
+      heading: "Thanh toán thử nghiệm",
+      body: "Đây là môi trường thanh toán thử nghiệm — chưa có giao dịch tiền thật nào được thực hiện. Bấm xác nhận bên dưới để kích hoạt gói Premium ngay.",
+      amountLabel: "Số tiền",
+      confirmLabel: "Xác nhận thanh toán",
+      confirmingLabel: "Đang xác nhận…",
+      errorBody: "Không xác nhận được thanh toán. Vui lòng thử lại.",
+      retryLabel: "Thử lại",
+      cancelLink: "Huỷ, quay lại chọn gói",
+      missingTxnTitle: "Thiếu thông tin giao dịch",
+      missingTxnBody: "Liên kết thanh toán không hợp lệ hoặc đã hết hạn.",
     },
   },
   home: {

@@ -1,4 +1,8 @@
+"use client";
+
+import { useId, useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getText } from "@/lib/text";
 import type { Locale } from "@/lib/routes/locale";
 
@@ -48,7 +52,11 @@ export function Pagination({ basePath, searchParams, page, pageSize, total, lang
           {text.questions.pagination.prev}
         </Link>
       )}
-      <span className="text-sm text-text-muted">{text.questions.pagination.pageOf(page, totalPages)}</span>
+
+      {/* Keyed by `page` so the input's local draft resets to the new
+          current page after Prev/Next navigation, without an effect. */}
+      <PageJumpForm key={page} page={page} totalPages={totalPages} hrefFor={hrefFor} text={text} />
+
       {isLastPage ? (
         <span aria-disabled="true" className="min-h-11 rounded-md border border-border px-4 py-2 text-text-muted opacity-60">
           {text.questions.pagination.next}
@@ -59,5 +67,49 @@ export function Pagination({ basePath, searchParams, page, pageSize, total, lang
         </Link>
       )}
     </nav>
+  );
+}
+
+type PageJumpFormProps = {
+  page: number;
+  totalPages: number;
+  hrefFor: (targetPage: number) => string;
+  text: ReturnType<typeof getText>;
+};
+
+function PageJumpForm({ page, totalPages, hrefFor, text }: PageJumpFormProps) {
+  const router = useRouter();
+  const inputId = useId();
+  const [jumpValue, setJumpValue] = useState(String(page));
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    const parsed = Number(jumpValue);
+    if (!Number.isInteger(parsed)) return;
+    const clamped = Math.min(Math.max(parsed, 1), totalPages);
+    router.push(hrefFor(clamped));
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 text-sm text-text-muted">
+      <label htmlFor={inputId} className="sr-only">
+        {text.questions.pagination.jumpAriaLabel}
+      </label>
+      <span>{text.questions.pagination.pagePrefix}</span>
+      <input
+        id={inputId}
+        type="number"
+        inputMode="numeric"
+        min={1}
+        max={totalPages}
+        value={jumpValue}
+        onChange={(event) => setJumpValue(event.target.value)}
+        className="min-h-11 w-16 rounded-md border border-border bg-surface px-2 text-center text-text"
+      />
+      <span>/ {totalPages}</span>
+      <button type="submit" className="min-h-11 rounded-md border border-border px-3 font-medium text-text hover:bg-border">
+        {text.questions.pagination.goButton}
+      </button>
+    </form>
   );
 }

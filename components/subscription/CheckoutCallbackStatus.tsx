@@ -5,7 +5,10 @@ import { Link } from "@/components/i18n/LocaleLink";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { useGetMySubscriptionQuery } from "@/lib/redux/subscriptionApi";
 import { useText } from "@/lib/text/useText";
+import { useLocale } from "@/lib/routes/useLocale";
 import { PAGE_ROUTES } from "@/lib/routes";
+import { formatDate } from "@/lib/format";
+import { CheckIcon } from "@/components/icons";
 
 const POLL_INTERVAL_MS = 2500;
 const MAX_WAIT_MS = 45_000;
@@ -25,6 +28,7 @@ const MAX_WAIT_MS = 45_000;
  */
 export function CheckoutCallbackStatus() {
   const text = useText();
+  const lang = useLocale();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const isBootstrapped = useAppSelector((s) => s.auth.isBootstrapped);
   const [gaveUp, setGaveUp] = useState(false);
@@ -68,13 +72,48 @@ export function CheckoutCallbackStatus() {
   }
 
   if (isConfirmed) {
+    const planLabel = data.planCode ? (text.subscription.planName[data.planCode] ?? data.planCode) : null;
+
     return (
-      <div className="rounded-lg border border-correct-500/30 bg-correct-bg p-6 text-center">
-        <p className="font-semibold text-correct-text">{text.subscription.callback.successTitle}</p>
-        <p className="mt-2 text-sm text-correct-text">{text.subscription.callback.successBody}</p>
+      <div className="mx-auto w-full max-w-sm rounded-lg border border-border bg-surface p-8 text-center shadow-(--shadow-border)">
+        <span className="mx-auto grid size-12 place-items-center rounded-full bg-marker-500">
+          <CheckIcon className="size-5 text-ink-950" />
+        </span>
+        <p className="mt-4 font-display text-[22px] leading-[1.3] font-bold text-text">
+          {text.subscription.callback.successTitle}
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-text-muted">{text.subscription.callback.successBody}</p>
+
+        {planLabel && (
+          <div className="mt-4 flex flex-col gap-1.5 rounded-md bg-premium-bg p-4 text-left">
+            <div className="flex items-center justify-between">
+              <span className="rounded bg-marker-500 px-2 py-1 font-mono text-[11px] font-bold uppercase text-ink-950">
+                {planLabel}
+              </span>
+              <span className="font-display text-sm font-bold text-text">
+                {text.subscription.callback.premiumAccessLabel}
+              </span>
+            </div>
+            <p className="text-[13px] font-medium text-marker-700">
+              {data.currentPeriodEnd
+                ? text.subscription.callback.validUntilLabel(formatDate(data.currentPeriodEnd, lang))
+                : text.subscription.callback.neverExpiresLabel}
+            </p>
+          </div>
+        )}
+
+        <ul className="mt-4 flex flex-col gap-3.5 text-left">
+          {text.subscription.subscribe.benefits.map((benefit) => (
+            <li key={benefit} className="flex items-start gap-2.5">
+              <span className="mt-1 size-4 shrink-0 rounded-full bg-marker-500" aria-hidden="true" />
+              <span className="text-[13px] leading-relaxed text-text-muted">{benefit}</span>
+            </li>
+          ))}
+        </ul>
+
         <Link
           href={PAGE_ROUTES.questions}
-          className="mt-4 inline-block min-h-11 content-center rounded-md bg-marker-500 px-5 py-2 font-semibold text-ink-950 hover:bg-marker-600"
+          className="mt-6 flex min-h-12 w-full items-center justify-center rounded-md bg-marker-500 px-5 text-[15px] font-semibold text-ink-950 shadow-[0_4px_12px_rgba(232,163,61,0.19)] hover:bg-marker-600"
         >
           {text.subscription.callback.goToQuestionsLink}
         </Link>
