@@ -39,6 +39,7 @@ export function QuestionFilters({ basePath, tagOptions = [], current }: Question
   const difficultyId = useId();
   const premiumId = useId();
   const searchId = useId();
+  const tagHintId = useId();
 
   const selectedTags = current.tag ?? [];
 
@@ -148,6 +149,7 @@ export function QuestionFilters({ basePath, tagOptions = [], current }: Question
               selected={selectedTags}
               onToggle={toggleTag}
               onClear={() => navigate({ tag: undefined })}
+              describedBy={tagHintId}
             />
           </div>
         )}
@@ -174,6 +176,19 @@ export function QuestionFilters({ basePath, tagOptions = [], current }: Question
             </button>
           </div>
         </div>
+
+        {/* FU-27: cues why this and TopicSidebar's category nav aren't
+            redundant filters (business-rule.md#category-vs-tag--clarified-2026-08-19).
+            A full-width flex-basis, not nested in the Tag column above — that
+            column feeds into the row's `items-end` alignment with Difficulty/
+            Plan/Search, so an extra line inside it would throw off every
+            other column's label position (real bug caught live from a
+            screenshot, not just typechecked). */}
+        {tagOptions.length > 0 && (
+          <span id={tagHintId} className="w-full text-xs text-text-muted">
+            {text.questions.filters.tagHint}
+          </span>
+        )}
       </form>
     </>
   );

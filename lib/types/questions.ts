@@ -47,6 +47,9 @@ export type QuestionListResponse = {
  */
 export type QuestionDetail = QuestionSummary & {
   hasAnswer: boolean;
+  // Opened 2026-08-19 (FU-29) — needed to call the Q&A Comments/Ratings
+  // endpoints (/answers/:answerId/...). Same presence rule as `answer`.
+  answerId?: string;
   answer?: string;
   // Opened 2026-08-13 — optional, same premium-gating as `answer` (present
   // only when `answer` is). A question may have neither, either, or both.

@@ -12,6 +12,7 @@ import { RevealAnswer } from "@/components/questions/RevealAnswer";
 import { CodeDemoBlock } from "@/components/questions/CodeDemoBlock";
 import { NoteCallout } from "@/components/questions/NoteCallout";
 import { FormattedAnswerText } from "@/components/questions/FormattedAnswerText";
+import { CommentsSection } from "@/components/questions/CommentsSection";
 
 /**
  * Only rendered when the server-scoped fetch (always guest) came back
@@ -51,15 +52,21 @@ export function PremiumAnswer({ slug, title }: { slug: string; title: string }) 
 
   if (data?.answer) {
     return (
-      <AnswerCard title={title} status={text.questions.detail.premiumAnswer.unlockedBadge}>
-        <RevealAnswer>
-          <div className="flex flex-col gap-5">
-            <FormattedAnswerText text={data.answer} />
-            {data.codeDemo && <CodeDemoBlock language={data.codeDemo.language} code={data.codeDemo.code} />}
-            {data.note && <NoteCallout title={data.note.title} items={data.note.items} />}
-          </div>
-        </RevealAnswer>
-      </AnswerCard>
+      <>
+        <AnswerCard title={title} status={text.questions.detail.premiumAnswer.unlockedBadge}>
+          <RevealAnswer>
+            <div className="flex flex-col gap-5">
+              <FormattedAnswerText text={data.answer} />
+              {data.codeDemo && <CodeDemoBlock language={data.codeDemo.language} code={data.codeDemo.code} />}
+              {data.note && <NoteCallout title={data.note.title} items={data.note.items} />}
+            </div>
+          </RevealAnswer>
+        </AnswerCard>
+        {/* Same mount condition as AnswerSection.tsx's SSR-entitled branch —
+            this is the client-refetch equivalent for a premium question
+            unlocked after the initial guest-scoped SSR pass. */}
+        {data.answerId && <CommentsSection answerId={data.answerId} lang={lang} />}
+      </>
     );
   }
 

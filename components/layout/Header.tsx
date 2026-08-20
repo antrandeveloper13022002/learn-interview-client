@@ -12,6 +12,7 @@ import { localizedPath } from "@/lib/routes/locale";
 import { APP_NAME, PAYMENTS_ENABLED } from "@/lib/constants";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { UserMenu } from "@/components/layout/UserMenu";
 import { MenuIcon, CloseIcon } from "@/components/icons";
 
 export function Header() {
@@ -63,23 +64,8 @@ export function Header() {
           <NotificationBell />
 
           {isBootstrapped && accessToken && user ? (
-            <div className="hidden items-center gap-2 lg:gap-3 xl:flex">
-              <Link href={PAGE_ROUTES.bookmarks} className="whitespace-nowrap text-[0.9375rem] font-medium text-text-muted hover:text-text">
-                {text.header.bookmarksLink}
-              </Link>
-              <Link href={PAGE_ROUTES.mySubmissions} className="whitespace-nowrap text-[0.9375rem] font-medium text-text-muted hover:text-text">
-                {text.header.mySubmissionsLink}
-              </Link>
-              <Link href={PAGE_ROUTES.profile} className="whitespace-nowrap text-[0.9375rem] font-medium text-text-muted hover:text-text">
-                {text.header.profileLink}
-              </Link>
-              <button
-                type="button"
-                onClick={() => logout()}
-                className="min-h-11 shrink-0 whitespace-nowrap rounded-md border border-border px-4 text-sm font-semibold text-text shadow-(--shadow-border) hover:shadow-(--shadow-border-hover)"
-              >
-                {text.header.logoutLabel}
-              </button>
+            <div className="hidden xl:block">
+              <UserMenu user={user} />
             </div>
           ) : (
             <Link

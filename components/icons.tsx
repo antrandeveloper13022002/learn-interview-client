@@ -266,6 +266,16 @@ export function GearIcon({ className }: IconProps) {
   );
 }
 
+export function LogoutIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </svg>
+  );
+}
+
 export function ExternalLinkIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>

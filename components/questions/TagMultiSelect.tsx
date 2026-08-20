@@ -10,6 +10,8 @@ type TagMultiSelectProps = {
   selected: string[];
   onToggle: (tagName: string) => void;
   onClear: () => void;
+  /** Id of an element (e.g. FU-27's hint caption) to associate with the trigger via aria-describedby. */
+  describedBy?: string;
 };
 
 /**
@@ -19,7 +21,7 @@ type TagMultiSelectProps = {
  * roving-tabindex listbox, since a screen reader needs each option's
  * checked state announced as the user tabs through (FU-22).
  */
-export function TagMultiSelect({ options, selected, onToggle, onClear }: TagMultiSelectProps) {
+export function TagMultiSelect({ options, selected, onToggle, onClear, describedBy }: TagMultiSelectProps) {
   const text = useText();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -49,6 +51,7 @@ export function TagMultiSelect({ options, selected, onToggle, onClear }: TagMult
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-describedby={describedBy}
         onClick={() => setOpen((v) => !v)}
         className={`flex min-h-11 w-full min-w-40 items-center justify-between gap-2 rounded-md border px-3 text-left focus-visible:ring-2 focus-visible:ring-marker-500 focus-visible:outline-none ${
           // bg-wash-bg, not bg-marker-100: marker-100 never re-themes for

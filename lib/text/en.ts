@@ -15,6 +15,7 @@ export const en = {
     contributeLink: "Contribute",
     mySubmissionsLink: "My submissions",
     notificationsLabel: "Notifications",
+    accountMenuLabel: "Account menu",
     profileLink: "Profile",
     logoutLabel: "Log out",
     loginLink: "Log in",
@@ -42,6 +43,9 @@ export const en = {
     notFoundTitle: "Page not found",
     notFoundBody: "The page you're looking for doesn't exist or has moved.",
     backToHomeLink: "Back to home",
+    // Shared between company reviews and Q&A comments (BE-65/FU-29/FU-30) —
+    // one string, not forked per domain.
+    anonymousAuthorLabel: "Anonymous",
   },
   auth: {
     login: {
@@ -204,6 +208,36 @@ export const en = {
         lockedBadge: "Locked",
       },
     },
+    comments: {
+      heading: "Comments & rating",
+      rating: {
+        heading: "Rate this answer",
+        starAriaLabel: (value: number) => `${value} stars`,
+        summary: (average: number, count: number) => `${average.toFixed(1)}/5 · ${count} ratings`,
+        emptySummary: "No ratings yet",
+      },
+      list: {
+        emptyBody: "No comments yet for this answer.",
+        replyLabel: "Reply",
+        reportLabel: "Report",
+        reportedLabel: "Reported",
+        editLabel: "Edit",
+        deleteLabel: "Delete",
+        saveEditLabel: "Save",
+        savingEditLabel: "Saving…",
+        cancelEditLabel: "Cancel",
+      },
+      form: {
+        loginPromptBody: "Log in to comment on this answer.",
+        loginPromptCta: "Log in",
+        contentPlaceholder: "Write your comment...",
+        replyPlaceholder: "Write your reply...",
+        anonymousLabel: "Post anonymously",
+        submitLabel: "Post comment",
+        submitReplyLabel: "Post reply",
+        cancelReplyLabel: "Cancel",
+      },
+    },
     filters: {
       formAriaLabel: "Filter questions",
       categoryLabel: "Topic",
@@ -220,6 +254,7 @@ export const en = {
       markStudyingLabel: "Mark as studying",
       unmarkStudyingLabel: "Studying this topic",
       tagLabel: "Tag",
+      tagHint: "Tags filter further by specific technique within your selected Category",
       allTags: "All tags",
       tagsSelectedLabel: (n: number) => `${n} tag${n === 1 ? "" : "s"} selected`,
       clearTagsLabel: "Clear",
@@ -349,6 +384,10 @@ export const en = {
       answerLabel: "Suggested answer",
       answerHint: "Your reference answer. An admin may edit it before publishing.",
       answerPlaceholder: "Write out the answer, including complexity analysis if relevant...",
+      categoryLabel: "Category (optional)",
+      categoryHint: "Not sure which category fits? Leave it blank — an admin will pick one when reviewing.",
+      categoryPlaceholder: "No category chosen",
+      tagLabel: "Tags (optional)",
       consentNote: "By submitting, you agree to let the platform publish this question (once approved) and credit your display name.",
       resetLabel: "Reset",
       submitLabel: "Submit question",

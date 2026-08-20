@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { AuthTabs } from "@/components/auth/AuthTabs";
+import { RedirectIfAuthenticated } from "@/components/auth/RedirectIfAuthenticated";
 import { getText } from "@/lib/text";
 import { resolveLocale } from "@/lib/routes/locale";
 
@@ -24,6 +25,7 @@ export default async function LoginPage({ params }: Props) {
 
   return (
     <div className="min-h-full bg-bg text-text">
+      <RedirectIfAuthenticated />
       <div className="mx-auto flex min-h-[80vh] w-full max-w-sm flex-col justify-center px-4 py-16">
         <div className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-(--shadow-border)">
           <AuthTabs active="login" lang={lang} />

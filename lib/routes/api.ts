@@ -37,4 +37,8 @@ export const API_ROUTES = {
   myNotifications: "/me/notifications",
   notificationRead: (id: string) => `/me/notifications/${id}/read`,
   notificationPreferences: "/me/notification-preferences",
+  answerRating: (answerId: string) => `/answers/${answerId}/rating`,
+  answerComments: (answerId: string) => `/answers/${answerId}/comments`,
+  comment: (commentId: string) => `/comments/${commentId}`,
+  commentReport: (commentId: string) => `/comments/${commentId}/report`,
 } as const;

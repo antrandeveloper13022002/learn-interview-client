@@ -14,6 +14,7 @@ export const vi = {
     contributeLink: "Đóng góp",
     mySubmissionsLink: "Bài đã đóng góp",
     notificationsLabel: "Thông báo",
+    accountMenuLabel: "Menu tài khoản",
     profileLink: "Hồ sơ",
     logoutLabel: "Đăng xuất",
     loginLink: "Đăng nhập",
@@ -41,6 +42,9 @@ export const vi = {
     notFoundTitle: "Không tìm thấy trang",
     notFoundBody: "Trang bạn tìm không tồn tại hoặc đã được di chuyển.",
     backToHomeLink: "Về trang chủ",
+    // Shared between company reviews and Q&A comments (BE-65/FU-29/FU-30) —
+    // one string, not forked per domain.
+    anonymousAuthorLabel: "Ẩn danh",
   },
   auth: {
     login: {
@@ -203,6 +207,36 @@ export const vi = {
         lockedBadge: "Khoá",
       },
     },
+    comments: {
+      heading: "Bình luận & đánh giá",
+      rating: {
+        heading: "Đánh giá đáp án này",
+        starAriaLabel: (value: number) => `${value} sao`,
+        summary: (average: number, count: number) => `${average.toFixed(1)}/5 · ${count} lượt đánh giá`,
+        emptySummary: "Chưa có lượt đánh giá nào",
+      },
+      list: {
+        emptyBody: "Chưa có bình luận nào cho đáp án này.",
+        replyLabel: "Trả lời",
+        reportLabel: "Báo cáo",
+        reportedLabel: "Đã báo cáo",
+        editLabel: "Chỉnh sửa",
+        deleteLabel: "Xoá",
+        saveEditLabel: "Lưu",
+        savingEditLabel: "Đang lưu…",
+        cancelEditLabel: "Huỷ",
+      },
+      form: {
+        loginPromptBody: "Đăng nhập để bình luận về đáp án này.",
+        loginPromptCta: "Đăng nhập",
+        contentPlaceholder: "Viết bình luận của bạn...",
+        replyPlaceholder: "Viết câu trả lời...",
+        anonymousLabel: "Đăng ẩn danh",
+        submitLabel: "Gửi bình luận",
+        submitReplyLabel: "Gửi trả lời",
+        cancelReplyLabel: "Huỷ",
+      },
+    },
     filters: {
       formAriaLabel: "Lọc câu hỏi",
       categoryLabel: "Chủ đề",
@@ -219,6 +253,7 @@ export const vi = {
       markStudyingLabel: "Đánh dấu đang ôn",
       unmarkStudyingLabel: "Đang ôn chủ đề này",
       tagLabel: "Tag",
+      tagHint: "Tag lọc thêm theo kỹ thuật cụ thể trong Chủ đề bạn đang chọn",
       allTags: "Tất cả tag",
       tagsSelectedLabel: (n: number) => `${n} tag đã chọn`,
       clearTagsLabel: "Xoá lọc",
@@ -357,6 +392,10 @@ export const vi = {
       answerLabel: "Gợi ý đáp án",
       answerHint: "Đáp án tham khảo của bạn. Quản trị viên có thể chỉnh sửa trước khi duyệt.",
       answerPlaceholder: "Trình bày đáp án, bao gồm phân tích độ phức tạp nếu áp dụng...",
+      categoryLabel: "Chủ đề (không bắt buộc)",
+      categoryHint: "Không chắc chủ đề nào phù hợp? Cứ để trống — quản trị viên sẽ chọn giúp khi duyệt.",
+      categoryPlaceholder: "Chưa chọn chủ đề",
+      tagLabel: "Tag (không bắt buộc)",
       consentNote: "Bằng cách gửi, bạn đồng ý cho phép nền tảng xuất bản câu hỏi này (sau khi duyệt) và ghi nhận tên hiển thị của bạn.",
       resetLabel: "Đặt lại",
       submitLabel: "Gửi câu hỏi",

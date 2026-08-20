@@ -20,7 +20,10 @@ test.describe("Auth (behavior + error states)", () => {
     await page.getByLabel("Mật khẩu").fill(E2E_FIXTURES.testUserPassword);
     await page.getByRole("button", { name: "Đăng nhập" }).click();
 
-    await expect(page.getByRole("link", { name: "Đăng xuất" }).or(page.getByRole("button", { name: "Đăng xuất" }))).toBeVisible();
+    // FU-28: "Đăng xuất" is collapsed inside the header's account-menu
+    // dropdown, not a standalone header link/button anymore — open it first.
+    await page.getByRole("button", { name: "Menu tài khoản" }).click();
+    await expect(page.getByRole("menuitem", { name: "Đăng xuất" })).toBeVisible();
   });
 
   test("wrong password shows the INVALID_CREDENTIALS alert, not a generic error", async ({ page }) => {

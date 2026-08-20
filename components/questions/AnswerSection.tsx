@@ -6,6 +6,7 @@ import { CodeDemoBlock } from "@/components/questions/CodeDemoBlock";
 import { NoteCallout } from "@/components/questions/NoteCallout";
 import { FormattedAnswerText } from "@/components/questions/FormattedAnswerText";
 import { ReferenceLinksSection } from "@/components/questions/ReferenceLinksSection";
+import { CommentsSection } from "@/components/questions/CommentsSection";
 import { getText } from "@/lib/text";
 import type { Locale } from "@/lib/routes/locale";
 
@@ -54,6 +55,7 @@ export function AnswerSection({ question, lang }: { question: QuestionDetail; la
           </RevealAnswer>
         </AnswerCard>
         {referenceLinks}
+        {question.answerId && <CommentsSection answerId={question.answerId} lang={lang} />}
       </>
     );
   }

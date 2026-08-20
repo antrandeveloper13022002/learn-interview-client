@@ -77,6 +77,54 @@ test.describe("Authenticated user flows (bookmarks, company reviews, study marks
     await expect(page.getByRole("button", { name: "Đã báo cáo" }).first()).toBeDisabled();
   });
 
+  test("posting an anonymous review shows Delete (not Report) on it, and deleting it works (BE-67/FU-33, TC-FU30-03 regression)", async () => {
+    // Regression guard for a real bug found 2026-08-19: the review's own
+    // author saw "Report" instead of "Delete" on their own anonymous
+    // review, because the old isMine check compared `userId` directly and
+    // `userId` is always null for an anonymous row — even to its own
+    // author. Fixed by having the backend compute `isMine` server-side
+    // (BE-67) and ReviewList.tsx consume it (FU-33) instead.
+    const content = `E2E anonymous review ${Date.now()}`;
+
+    await page.goto(`/vi/companies/${E2E_FIXTURES.companySlug}`);
+    await page.getByRole("radio", { name: "3 sao" }).click();
+    await page.getByLabel("Nội dung").fill(content);
+    await page.getByLabel("Đăng ẩn danh").check();
+    await page.getByRole("button", { name: "Gửi đánh giá" }).click();
+
+    // Scoped to this specific review's own <li> — the list also contains
+    // other users' (and this same user's other) anonymous reviews, which
+    // must correctly still show "Report", not "Delete".
+    const card = page.locator("main ul li").filter({ hasText: content });
+    await expect(card.getByRole("button", { name: "Xoá" })).toBeVisible();
+    await expect(card.getByRole("button", { name: "Báo cáo" })).not.toBeVisible();
+
+    await card.getByRole("button", { name: "Xoá" }).click();
+    await expect(page.locator("main ul li").filter({ hasText: content })).toHaveCount(0);
+  });
+
+  test("a comment's own author sees Edit/Delete on it (even anonymous), never on someone else's (FU-34)", async () => {
+    const content = `E2E comment ${Date.now()}`;
+
+    await page.goto(`/vi/questions/${E2E_FIXTURES.freeQuestionSlug}`);
+    await page.getByLabel("Viết bình luận của bạn...").fill(content);
+    await page.getByRole("button", { name: "Gửi bình luận" }).click();
+
+    const card = page.locator("main ul li").filter({ hasText: content });
+    await expect(card.getByRole("button", { name: "Chỉnh sửa" })).toBeVisible();
+    await expect(card.getByRole("button", { name: "Xoá" })).toBeVisible();
+    // Someone else's comment (seeded, not this session's user) must never
+    // show these — scoped to a different <li> than `card` above.
+    const othersCard = page.locator("main ul li").filter({ hasNotText: content }).first();
+    if (await othersCard.count()) {
+      await expect(othersCard.getByRole("button", { name: "Chỉnh sửa" })).not.toBeVisible();
+      await expect(othersCard.getByRole("button", { name: "Xoá" })).not.toBeVisible();
+    }
+
+    await card.getByRole("button", { name: "Xoá" }).click();
+    await expect(page.locator("main ul li").filter({ hasText: content })).toHaveCount(0);
+  });
+
   test("contributing a question is pending in My submissions, then editable and withdrawable (FU-23)", async () => {
     const title = `E2E question ${Date.now()}`;
 

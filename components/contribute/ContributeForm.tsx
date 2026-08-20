@@ -4,7 +4,11 @@ import { useId, useState } from "react";
 import { Link } from "@/components/i18n/LocaleLink";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { useCreateQuestionSubmissionMutation } from "@/lib/redux/questionSubmissionsApi";
+import { useGetCategoriesQuery, useGetQuestionTagsQuery } from "@/lib/redux/questionsApi";
+import { useLocale } from "@/lib/routes/useLocale";
 import { Skeleton, SkeletonGroup } from "@/components/Skeleton";
+import { Dropdown, type DropdownOption } from "@/components/ui/Dropdown";
+import { TagMultiSelect } from "@/components/questions/TagMultiSelect";
 import { useText } from "@/lib/text/useText";
 import { PAGE_ROUTES } from "@/lib/routes";
 import type { ApiErrorBody } from "@/lib/types";
@@ -66,11 +70,19 @@ export function ContributeForm() {
 
 function ContributeFormBody() {
   const text = useText();
+  const lang = useLocale();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [suggestedAnswer, setSuggestedAnswer] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  // Selected by tag NAME (matching TagMultiSelect's existing contract,
+  // shared with the /questions filter — FU-22), mapped to ids only at
+  // submit time via `tagOptions`, which already carries both.
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [createSubmission, { isLoading, error, reset }] = useCreateQuestionSubmissionMutation();
+  const { data: categories } = useGetCategoriesQuery({ lang });
+  const { data: tagOptions } = useGetQuestionTagsQuery();
 
   const titleId = useId();
   const contentId = useId();
@@ -84,15 +96,28 @@ function ContributeFormBody() {
     setTitle("");
     setContent("");
     setSuggestedAnswer("");
+    setCategoryId("");
+    setSelectedTagNames([]);
     setSubmitted(false);
     reset();
+  }
+
+  function toggleTag(tagName: string) {
+    setSelectedTagNames((prev) => (prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
+    const tagIds = (tagOptions ?? []).filter((t) => selectedTagNames.includes(t.name)).map((t) => t.id);
     try {
-      await createSubmission({ title: title.trim(), content: content.trim(), suggestedAnswer: suggestedAnswer.trim() }).unwrap();
+      await createSubmission({
+        title: title.trim(),
+        content: content.trim(),
+        suggestedAnswer: suggestedAnswer.trim(),
+        categoryId: categoryId || undefined,
+        tagIds: tagIds.length > 0 ? tagIds : undefined,
+      }).unwrap();
       setSubmitted(true);
     } catch {
       // error state below reads the mutation's own `error`
@@ -201,6 +226,33 @@ function ContributeFormBody() {
             className="resize-none rounded-md border border-border bg-bg px-3 py-2 text-text"
           />
           <span className="text-xs text-text-muted">{text.contribute.form.answerHint}</span>
+        </div>
+
+        <div className="h-px bg-border" />
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-text">{text.contribute.form.categoryLabel}</span>
+            <Dropdown
+              value={categoryId}
+              placeholder={text.contribute.form.categoryPlaceholder}
+              onChange={setCategoryId}
+              options={(categories ?? []).map((c): DropdownOption => ({ value: c.id, label: c.name }))}
+            />
+            <span className="text-xs text-text-muted">{text.contribute.form.categoryHint}</span>
+          </div>
+
+          {tagOptions && tagOptions.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-semibold text-text">{text.contribute.form.tagLabel}</span>
+              <TagMultiSelect
+                options={tagOptions}
+                selected={selectedTagNames}
+                onToggle={toggleTag}
+                onClear={() => setSelectedTagNames([])}
+              />
+            </div>
+          )}
         </div>
       </div>
 

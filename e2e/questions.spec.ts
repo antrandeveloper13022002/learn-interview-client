@@ -33,6 +33,22 @@ test.describe("Questions — browse, filter, free reveal, premium lock", () => {
     await expect(page.getByText("E2E premium answer content.")).not.toBeVisible();
   });
 
+  test("searching by keyword returns the matching question via Postgres FTS (BE-10)", async ({ page }) => {
+    // No prior automated coverage exercised the real search SQL end to end
+    // (only route-level tests mocking the repository) — this hits the
+    // real dev DB through the full stack, same round-trip-reduction
+    // rewrite this covers as backend/src/repository/interview/
+    // interview.repository.ts's findQuestionsBySearch.
+    await page.goto("/vi/questions");
+
+    await page.getByRole("combobox", { name: "Tìm kiếm" }).fill("E2E free question");
+    await page.getByRole("button", { name: "Tìm" }).click();
+
+    await expect(page).toHaveURL(/q=/);
+    await expect(page.getByRole("link", { name: /E2E free question/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /E2E premium question/ })).not.toBeVisible();
+  });
+
   test("clicking a tag chip filters the list to that tag and can be cleared (BE-54/FU-21/FU-22)", async ({ page }) => {
     await page.goto(`/vi/questions/${E2E_FIXTURES.freeQuestionSlug}`);
 
