@@ -111,17 +111,27 @@ export function PaymentHistoryView() {
             </div>
             <div className="flex shrink-0 items-center gap-3">
               {/* Fixed width + tabular-nums + right-aligned: amounts vary
-                  in digit count (20.000 vs 250.000), so without a fixed
-                  column the status badge next to it drifted left/right
-                  per row instead of lining up down the list. Converts to
-                  the plan's current listed USD price on the English site
-                  (business-rule.md#subscription) — not what was actually
-                  charged in VND at the time, since it's a fixed listed
-                  price, not a stored historical exchange rate. */}
+                  in digit count (20.000 vs 250.000). Both this and the
+                  badge below need a fixed width for the row to actually
+                  line up — fixing only one still let the other's varying
+                  width shift the whole group, since justify-between
+                  anchors this group's right edge, not its left. Converts
+                  to the plan's current listed USD price on the English
+                  site (business-rule.md#subscription) — not what was
+                  actually charged in VND at the time, since it's a fixed
+                  listed price, not a stored historical exchange rate. */}
               <span className="font-display w-24 text-right font-semibold tabular-nums text-text">
                 {lang === "en" ? formatUsd(entry.priceUsdCents ?? 0) : formatVnd(entry.amount)}
               </span>
-              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${STATUS_BADGE_CLASS[entry.status] ?? "bg-wash-bg text-wash-text"}`}>
+              {/* Fixed width too, same reason as the price span above: the
+                  status labels vary in length ("Failed" vs "Succeeded" vs
+                  "Đã hoàn tiền") — without a fixed width here, the *total*
+                  width of this price+badge group still shifted per row
+                  even with the price column fixed, since justify-between
+                  anchors the group's right edge, not its left. */}
+              <span
+                className={`w-28 shrink-0 rounded-full px-3 py-1 text-center text-xs font-medium ${STATUS_BADGE_CLASS[entry.status] ?? "bg-wash-bg text-wash-text"}`}
+              >
                 {text.paymentHistory.statusLabel[entry.status] ?? entry.status}
               </span>
             </div>
