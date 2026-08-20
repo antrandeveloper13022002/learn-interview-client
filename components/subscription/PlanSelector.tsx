@@ -6,6 +6,7 @@ import { useAppSelector } from "@/lib/redux/hooks";
 import { useCheckoutMutation, useGetMySubscriptionQuery } from "@/lib/redux/subscriptionApi";
 import { formatUsd, formatVnd } from "@/lib/format";
 import { useText } from "@/lib/text/useText";
+import { useLocale } from "@/lib/routes/useLocale";
 import { PAGE_ROUTES } from "@/lib/routes";
 import { CheckIcon, LockIcon } from "@/components/icons";
 import type { ApiErrorBody, SubscriptionPlan } from "@/lib/types";
@@ -30,6 +31,7 @@ type PlanSelectorProps = {
  */
 export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
   const text = useText();
+  const lang = useLocale();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
   const isBootstrapped = useAppSelector((s) => s.auth.isBootstrapped);
   const { data: subscription } = useGetMySubscriptionQuery(undefined, { skip: !accessToken });
@@ -46,6 +48,10 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
     setCheckoutError(null);
     setPendingPlanId(plan.id);
     try {
+      // A USD-displayed card still checks out at its own fixed VND price
+      // (business-rule.md#subscription, confirmed 2026-08-21) — MoMo only
+      // ever charges plan.priceVnd, regardless of which currency the card
+      // is shown in; no separate VND plan lookup needed.
       const result = await checkout({ planId: plan.id }).unwrap();
       // Real browser navigation to MoMo's own domain, not router.push —
       // this is leaving the Next.js app entirely. `.assign()` rather than
@@ -121,13 +127,12 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
 
           {plans.map((plan) => {
             const isPending = isCheckingOut && pendingPlanId === plan.id;
-            // USD rows are their own plan codes (MONTHLY_USD/LIFETIME_USD,
-            // business-rule.md#subscription) but share display copy with
-            // their VND counterpart — strip the suffix to look it up.
-            const baseCode = plan.code.replace(/_USD$/, "");
-            const isRecommended = baseCode === "MONTHLY";
-            const description = text.subscription.subscribe.planDescription[baseCode];
-            const price = plan.currency === "USD" ? formatUsd(plan.priceUsdCents ?? 0) : formatVnd(plan.priceVnd);
+            const isRecommended = plan.code === "MONTHLY";
+            const description = text.subscription.subscribe.planDescription[plan.code];
+            // Every plan carries both prices at once (business-rule.md#subscription,
+            // confirmed 2026-08-21) — which one displays depends on the
+            // site's language, not on a separate per-currency plan row.
+            const price = lang === "en" ? formatUsd(plan.priceUsdCents ?? 0) : formatVnd(plan.priceVnd);
             return (
               <li
                 key={plan.id}
@@ -148,7 +153,7 @@ export function PlanSelector({ plans, freeQuestionCount }: PlanSelectorProps) {
                   {text.subscription.subscribe.recommendedBadge}
                 </p>
                 <div className="flex flex-1 flex-col p-8">
-                  <p className="font-display text-lg font-semibold">{text.subscription.planName[baseCode] ?? plan.name}</p>
+                  <p className="font-display text-lg font-semibold">{text.subscription.planName[plan.code] ?? plan.name}</p>
                   {description && <p className="mt-1 text-sm text-text-muted">{description}</p>}
                   <p className="font-display mt-4 text-2xl font-bold tracking-tight">
                     {price}

@@ -69,18 +69,16 @@ export default async function SubscribePage({ params }: Props) {
     );
   }
 
-  const [allPlans, freeQuestions] = await Promise.all([
+  // business-rule.md#subscription: only 2 plans exist (MONTHLY/LIFETIME),
+  // each carrying both a real priceVnd and a display-only priceUsdCents at
+  // once — no currency-based filtering needed, PlanSelector.tsx picks
+  // which price field to render based on the site's language instead.
+  const [plans, freeQuestions] = await Promise.all([
     getSubscriptionPlans(),
     // pageSize: 1 — only `total` is used, the Free card's "access every
     // free question" benefit; fetching the full list would be wasted work.
     getQuestions({ isPremium: false, pageSize: 1 }, lang),
   ]);
-  // business-rule.md#subscription: USD rows (MONTHLY_USD/LIFETIME_USD) are
-  // a distinct display-only pair for the English site, not a
-  // currency-converted view of the VND rows — never show both currencies
-  // at once.
-  const currency = lang === "en" ? "USD" : "VND";
-  const plans = allPlans.filter((plan) => plan.currency === currency);
 
   return (
     <div className="min-h-full bg-bg pb-12 text-text">
