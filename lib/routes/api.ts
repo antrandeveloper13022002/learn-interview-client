@@ -23,6 +23,7 @@ export const API_ROUTES = {
   companyReviews: (companyId: string) => `/companies/${companyId}/reviews`,
   review: (reviewId: string) => `/reviews/${reviewId}`,
   reviewReport: (reviewId: string) => `/reviews/${reviewId}/report`,
+  reviewLike: (reviewId: string) => `/reviews/${reviewId}/like`,
   bookmark: (questionId: string) => `/questions/${questionId}/bookmark`,
   myBookmarks: "/me/bookmarks",
   categoryStudyMark: (categoryId: string) => `/categories/${categoryId}/study-mark`,

@@ -101,7 +101,12 @@ export function CommentForm({ answerId, parentCommentId, onCancel, onPosted }: C
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 text-sm text-text">
-          <input type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="size-4" />
+          <input
+            type="checkbox"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+            className="size-4 cursor-pointer accent-marker-600 outline-none ring-marker-300 ring-offset-1 ring-offset-bg transition-shadow hover:ring-2 focus-visible:ring-2 focus-visible:ring-marker-600"
+          />
           {text.questions.comments.form.anonymousLabel}
         </label>
 

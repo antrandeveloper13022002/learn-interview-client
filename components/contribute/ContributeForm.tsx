@@ -136,17 +136,17 @@ function ContributeFormBody() {
           </p>
           <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-text-muted">{text.contribute.success.body}</p>
         </div>
-        <div className="flex w-full max-w-xs flex-col gap-3 sm:flex-row">
+        <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
           <Link
             href={PAGE_ROUTES.mySubmissions}
-            className="flex-1 rounded-md bg-marker-500 px-5 py-2.5 text-center text-sm font-semibold text-ink-950 hover:bg-marker-600"
+            className="flex-1 whitespace-nowrap rounded-md bg-marker-500 px-5 py-2.5 text-center text-sm font-semibold text-ink-950 hover:bg-marker-600"
           >
             {text.contribute.success.viewSubmissionsCta}
           </Link>
           <button
             type="button"
             onClick={resetForm}
-            className="flex-1 rounded-md border border-border px-5 py-2.5 text-sm font-semibold text-text hover:bg-border"
+            className="flex-1 whitespace-nowrap rounded-md border border-border px-5 py-2.5 text-sm font-semibold text-text hover:bg-border"
           >
             {text.contribute.success.submitAnotherCta}
           </button>

@@ -318,6 +318,9 @@ export const vi = {
       deleteLabel: "Xoá",
       reportLabel: "Báo cáo",
       reportedLabel: "Đã báo cáo",
+      likeLabel: "Thích",
+      likeAriaLabel: (count: number) => `Thích (${count} lượt thích)`,
+      unlikeAriaLabel: (count: number) => `Bỏ thích (${count} lượt thích)`,
       // Section heading above the write-review box — switches with login
       // state, same as the design (docs/design/figma-export's WriteReviewCard).
       shareExperienceHeading: "Chia sẻ trải nghiệm",

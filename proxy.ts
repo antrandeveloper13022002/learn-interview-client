@@ -27,7 +27,11 @@ export const config = {
     // Exclude: Next internals, static files, metadata files, and the two
     // fixed-URL external callback targets (MoMo return, Google OAuth
     // callback) that must stay unprefixed — see tasks/frontend-user.md
-    // FU-19's note on why those can't move under [lang].
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api|checkout/return|auth/google/callback).*)",
+    // FU-19's note on why those can't move under [lang]. `icon.svg` added
+    // 2026-08-20 (FU-37) — this list is an explicit allowlist-by-exclusion,
+    // not a magic pattern, so any new root-level metadata file convention
+    // (favicon/icon/apple-icon/opengraph-image/...) needs adding here too
+    // or it silently 404s via a bogus /<locale>/<file> redirect.
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap.xml|api|checkout/return|auth/google/callback).*)",
   ],
 };

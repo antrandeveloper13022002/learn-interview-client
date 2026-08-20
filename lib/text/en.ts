@@ -314,6 +314,9 @@ export const en = {
       deleteLabel: "Delete",
       reportLabel: "Report",
       reportedLabel: "Reported",
+      likeLabel: "Like",
+      likeAriaLabel: (count: number) => `Like (${count} likes)`,
+      unlikeAriaLabel: (count: number) => `Unlike (${count} likes)`,
       // Section heading above the write-review box — switches with login
       // state, same as the design (docs/design/figma-export's WriteReviewCard).
       shareExperienceHeading: "Share your experience",

@@ -5,6 +5,8 @@ type AvatarProps = {
   name?: string;
   /** No identity to draw an initial from (an anonymous post, BE-65's `authorDisplayName: null`) — renders a neutral placeholder instead of a marker-colored initial. */
   anonymous?: boolean;
+  /** Google-derived profile picture (BE-72) — when present (and not `anonymous`), rendered instead of the initial-letter fallback. No other source of avatar images exists in this app. */
+  avatarUrl?: string | null;
   /** sm = comment/review author rows (28px), md = header account trigger (32px). */
   size?: "sm" | "md";
   className?: string;
@@ -21,16 +23,16 @@ const ICON_SIZE_CLASS = {
 } as const;
 
 /**
- * Initial-letter avatar — there is no avatar-image field on `User` (only
- * `displayName`/`email`), so this is the only avatar this app can render
- * without inventing an upload feature. Dark ink text on the marker accent,
- * never white — same rule globals.css documents for every other use of
- * marker-500 as a fill. `anonymous` covers both an explicitly anonymous
- * post and a non-anonymous author with no `displayName` set — BE-65's
- * `authorDisplayName: null` doesn't distinguish the two, so neither does
- * this component.
+ * Real Google-picture avatar when `avatarUrl` is set (BE-72), otherwise an
+ * initial-letter fallback — there is no upload feature, `avatarUrl` is the
+ * only avatar-image source this app has. Dark ink text on the marker
+ * accent, never white — same rule globals.css documents for every other
+ * use of marker-500 as a fill. `anonymous` covers both an explicitly
+ * anonymous post and a non-anonymous author with no `displayName` set —
+ * BE-65's `authorDisplayName: null` doesn't distinguish the two, so neither
+ * does this component.
  */
-export function Avatar({ name, anonymous = false, size = "md", className = "" }: AvatarProps) {
+export function Avatar({ name, anonymous = false, avatarUrl, size = "md", className = "" }: AvatarProps) {
   if (anonymous || !name) {
     return (
       <span
@@ -39,6 +41,18 @@ export function Avatar({ name, anonymous = false, size = "md", className = "" }:
       >
         <UserIcon className={ICON_SIZE_CLASS[size]} />
       </span>
+    );
+  }
+
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- external, Google-supplied URL, not a project asset next/image can optimize without a remotePatterns allowlist decision (same call as company logoUrl elsewhere).
+      <img
+        src={avatarUrl}
+        alt=""
+        aria-hidden="true"
+        className={`shrink-0 rounded-full object-cover ${SIZE_CLASS[size]} ${className}`}
+      />
     );
   }
 

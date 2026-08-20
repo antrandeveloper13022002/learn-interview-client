@@ -6,11 +6,13 @@ import {
   useGetCompanyReviewsQuery,
   useDeleteCompanyReviewMutation,
   useReportCompanyReviewMutation,
+  useLikeCompanyReviewMutation,
+  useUnlikeCompanyReviewMutation,
 } from "@/lib/redux/companyReviewApi";
 import { useText } from "@/lib/text/useText";
 import { useLocale } from "@/lib/routes/useLocale";
 import { formatDate } from "@/lib/format";
-import { StarIcon, FlagIcon } from "@/components/icons";
+import { StarIcon, FlagIcon, ThumbsUpIcon } from "@/components/icons";
 import { Avatar } from "@/components/ui/Avatar";
 
 type ReviewListProps = { companyId: string };
@@ -35,6 +37,8 @@ export function ReviewList({ companyId }: ReviewListProps) {
   const { data, isLoading, isError } = useGetCompanyReviewsQuery(companyId, { skip: !isBootstrapped });
   const [deleteReview] = useDeleteCompanyReviewMutation();
   const [reportReview] = useReportCompanyReviewMutation();
+  const [likeReview] = useLikeCompanyReviewMutation();
+  const [unlikeReview] = useUnlikeCompanyReviewMutation();
   // BE-38's report endpoint gives no signal distinguishing "first report"
   // from "already reported" — this only tracks the current session, reset
   // on reload (documented in companyReviewApi.ts).
@@ -66,6 +70,23 @@ export function ReviewList({ companyId }: ReviewListProps) {
 
   async function handleDelete(reviewId: string) {
     await deleteReview({ reviewId, companyId });
+  }
+
+  // BE-73: same "let the button be there, rely on the server's 401, no
+  // client-side auth gate" convention as handleReport above — a guest's
+  // click still no-ops safely (isLikedByMe/likeCount are never optimistic-
+  // updated on a failed mutation, see companyReviewApi.ts's undo-on-catch).
+  async function handleToggleLike(reviewId: string, isLikedByMe: boolean) {
+    try {
+      if (isLikedByMe) {
+        await unlikeReview({ reviewId, companyId }).unwrap();
+      } else {
+        await likeReview({ reviewId, companyId }).unwrap();
+      }
+    } catch {
+      // Liking is a low-stakes secondary action — no dedicated error UI,
+      // same reasoning as handleReport.
+    }
   }
 
   return (
@@ -118,6 +139,24 @@ export function ReviewList({ companyId }: ReviewListProps) {
             )}
 
             <div className="mt-3 flex items-center gap-3 text-sm">
+              <button
+                type="button"
+                onClick={() => handleToggleLike(review.id, review.isLikedByMe)}
+                aria-pressed={review.isLikedByMe}
+                aria-label={
+                  review.isLikedByMe
+                    ? text.companies.reviews.unlikeAriaLabel(review.likeCount)
+                    : text.companies.reviews.likeAriaLabel(review.likeCount)
+                }
+                className={`inline-flex items-center gap-1.5 font-medium hover:text-marker-700 ${
+                  review.isLikedByMe ? "text-marker-700" : "text-text-muted"
+                }`}
+              >
+                <ThumbsUpIcon filled={review.isLikedByMe} className="size-4" />
+                {text.companies.reviews.likeLabel}
+                {review.likeCount > 0 && <span className="text-text-muted">({review.likeCount})</span>}
+              </button>
+
               {isMine ? (
                 <button
                   type="button"

@@ -7,6 +7,7 @@ import { useUpdateProfileMutation } from "@/lib/redux/authApi";
 import { Skeleton, SkeletonGroup } from "@/components/Skeleton";
 import { useText } from "@/lib/text/useText";
 import { PAGE_ROUTES } from "@/lib/routes";
+import { Avatar } from "@/components/ui/Avatar";
 import type { SessionUser } from "@/lib/types";
 
 /**
@@ -74,6 +75,8 @@ function ProfileForm({ user }: { user: SessionUser }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4" aria-busy={isLoading}>
+      <Avatar name={user.displayName ?? user.email} avatarUrl={user.avatarUrl} size="md" className="size-14 text-lg" />
+
       <div className="flex flex-col gap-1">
         <span className="text-sm font-medium text-text">{text.profile.emailLabel}</span>
         <p className="text-text-muted">{user.email}</p>

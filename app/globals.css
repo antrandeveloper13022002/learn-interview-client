@@ -18,6 +18,20 @@
    paper-text look regardless of page theme. */
 :root {
   color-scheme: light;
+  /* Reserve the vertical scrollbar's width even on a short page (e.g. a
+     filtered/searched questions list with zero or few results) — without
+     this, the page's available width changes by the scrollbar's width the
+     moment content grows past one viewport, shifting every centered
+     `mx-auto` container sideways. Found live: toggling a /questions filter
+     between an empty and a non-empty result set visibly nudged the whole
+     page. `stable` always reserves the gutter; `both-edges` isn't needed
+     since this app has no meaningful RTL/dual-scrollbar layout.
+     `scrollbar-gutter` only has an effect when `overflow` isn't its
+     default `visible` — `overflow-y: scroll` is also the fallback for
+     browsers without `scrollbar-gutter` support at all (notably Safari
+     before 18.2), so both are needed together, not just the modern one. */
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
 
   /* Paper: warm off-white, not clinical white. */
   --paper-0: oklch(1 0.004 80);

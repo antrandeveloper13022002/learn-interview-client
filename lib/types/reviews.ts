@@ -23,6 +23,11 @@ export type CompanyReview = {
   adminReply: string | null;
   createdAt: string;
   updatedAt: string;
+  // BE-73 — never hidden on an anonymous review, unlike userId/
+  // authorDisplayName above: a like is the viewer's own action, not
+  // something that identifies the review's author.
+  likeCount: number;
+  isLikedByMe: boolean;
 };
 
 export type CompanyReviewListResponse = {

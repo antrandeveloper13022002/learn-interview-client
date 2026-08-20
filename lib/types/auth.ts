@@ -8,6 +8,10 @@ export type SessionUser = {
   // PATCH /me/profile. No separate GET endpoint; this is the one place
   // the frontend reads the caller's current value from.
   displayName: string | null;
+  // Added BE-72 (2026-08-20) — Google-derived only (backfilled from the
+  // `picture` claim on first-time Google sign-in/link), no upload feature,
+  // no self-service editing.
+  avatarUrl: string | null;
 };
 
 export type AuthResponse = {
@@ -26,7 +30,7 @@ export type LoginRequest = {
 };
 
 export type UpdateProfileRequest = { displayName: string | null };
-export type ProfileResponse = { id: string; email: string; displayName: string | null };
+export type ProfileResponse = { id: string; email: string; displayName: string | null; avatarUrl: string | null };
 
 export type VerifyEmailRequest = { token: string };
 export type ForgotPasswordRequest = { email: string };

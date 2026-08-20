@@ -128,7 +128,7 @@ export function UserMenu({ user }: UserMenuProps) {
         aria-label={text.header.accountMenuLabel}
         className="flex h-11 shrink-0 items-center gap-2 rounded-md py-0 pr-2 pl-1.5 hover:bg-border"
       >
-        <Avatar name={name} size="md" />
+        <Avatar name={name} avatarUrl={user.avatarUrl} size="md" />
         <span className="max-w-32 truncate text-[0.9375rem] font-medium text-text">{name}</span>
         <ChevronDownIcon className={`size-4 shrink-0 text-text-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>

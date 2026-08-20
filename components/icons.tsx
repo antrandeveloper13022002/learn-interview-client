@@ -284,3 +284,12 @@ export function ExternalLinkIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function ThumbsUpIcon({ className, filled }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base} className={className} fill={filled ? "currentColor" : "none"}>
+      <path d="M7 11v9H4v-9h3Z" />
+      <path d="M7 11l4.5-7a2 2 0 0 1 2 2.2L12.5 10H18a2 2 0 0 1 1.9 2.7l-2 5.5A2 2 0 0 1 16 19.5H7" />
+    </svg>
+  );
+}

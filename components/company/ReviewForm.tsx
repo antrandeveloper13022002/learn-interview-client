@@ -119,7 +119,7 @@ export function ReviewForm({ companyId }: ReviewFormProps) {
           type="checkbox"
           checked={isAnonymous}
           onChange={(e) => setIsAnonymous(e.target.checked)}
-          className="size-4"
+          className="size-4 cursor-pointer accent-marker-600 outline-none ring-marker-300 ring-offset-1 ring-offset-bg transition-shadow hover:ring-2 focus-visible:ring-2 focus-visible:ring-marker-600"
         />
         {text.companies.reviews.form.anonymousLabel}
       </label>

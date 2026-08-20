@@ -65,6 +65,48 @@ export const companyReviewApi = api.injectEndpoints({
         body: reason ? { reason } : {},
       }),
     }),
+    // BE-73: true optimistic update (unlike createCompanyReview above,
+    // which waits for the server row) — a like toggle has no server-
+    // generated data worth waiting for, just a count/flag flip, same
+    // undo-on-failure shape as deleteCompanyReview.
+    likeCompanyReview: builder.mutation<void, { reviewId: string; companyId: string }>({
+      query: ({ reviewId }) => ({ url: API_ROUTES.reviewLike(reviewId), method: "POST" }),
+      async onQueryStarted({ reviewId, companyId }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          companyReviewApi.util.updateQueryData("getCompanyReviews", companyId, (draft) => {
+            const review = draft.items.find((r) => r.id === reviewId);
+            if (review && !review.isLikedByMe) {
+              review.isLikedByMe = true;
+              review.likeCount += 1;
+            }
+          }),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+    }),
+    unlikeCompanyReview: builder.mutation<void, { reviewId: string; companyId: string }>({
+      query: ({ reviewId }) => ({ url: API_ROUTES.reviewLike(reviewId), method: "DELETE" }),
+      async onQueryStarted({ reviewId, companyId }, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          companyReviewApi.util.updateQueryData("getCompanyReviews", companyId, (draft) => {
+            const review = draft.items.find((r) => r.id === reviewId);
+            if (review && review.isLikedByMe) {
+              review.isLikedByMe = false;
+              review.likeCount -= 1;
+            }
+          }),
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+    }),
   }),
 });
 
@@ -73,4 +115,6 @@ export const {
   useCreateCompanyReviewMutation,
   useDeleteCompanyReviewMutation,
   useReportCompanyReviewMutation,
+  useLikeCompanyReviewMutation,
+  useUnlikeCompanyReviewMutation,
 } = companyReviewApi;
