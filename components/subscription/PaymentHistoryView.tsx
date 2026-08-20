@@ -7,7 +7,7 @@ import { SkeletonGroup, Skeleton } from "@/components/Skeleton";
 import { useText } from "@/lib/text/useText";
 import { useLocale } from "@/lib/routes/useLocale";
 import { PAGE_ROUTES } from "@/lib/routes";
-import { formatDate, formatVnd } from "@/lib/format";
+import { formatDate, formatUsd, formatVnd } from "@/lib/format";
 
 const STATUS_BADGE_CLASS: Record<string, string> = {
   SUCCESS: "bg-correct-bg text-correct-text",
@@ -110,11 +110,18 @@ export function PaymentHistoryView() {
               <p className="text-sm text-text-muted">{formatDate(entry.createdAt, lang)}</p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
-              {/* Always VND: createCheckout rejects any non-VND plan
-                  (BE-53), so no PaymentTransaction row can carry another
-                  currency today — revisit if that guard is ever lifted. */}
-              <span className="font-display font-semibold text-text">{formatVnd(entry.amount)}</span>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_BADGE_CLASS[entry.status] ?? "bg-wash-bg text-wash-text"}`}>
+              {/* Fixed width + tabular-nums + right-aligned: amounts vary
+                  in digit count (20.000 vs 250.000), so without a fixed
+                  column the status badge next to it drifted left/right
+                  per row instead of lining up down the list. Converts to
+                  the plan's current listed USD price on the English site
+                  (business-rule.md#subscription) — not what was actually
+                  charged in VND at the time, since it's a fixed listed
+                  price, not a stored historical exchange rate. */}
+              <span className="font-display w-24 text-right font-semibold tabular-nums text-text">
+                {lang === "en" ? formatUsd(entry.priceUsdCents ?? 0) : formatVnd(entry.amount)}
+              </span>
+              <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${STATUS_BADGE_CLASS[entry.status] ?? "bg-wash-bg text-wash-text"}`}>
                 {text.paymentHistory.statusLabel[entry.status] ?? entry.status}
               </span>
             </div>

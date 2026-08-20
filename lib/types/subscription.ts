@@ -1,15 +1,17 @@
 // Mirrors docs/api/openapi.yaml's SubscriptionPlan/SubscriptionStatus
 // schemas exactly (see docs/business/business-rule.md#subscription for the
-// three seeded plan codes/prices this drives display for).
+// 2 seeded plan codes/prices this drives display for).
 export type SubscriptionPlan = {
   id: string;
   code: string;
   name: string;
+  // The real amount charged at checkout, regardless of display language.
   priceVnd: number;
-  // Meaningful only when currency is "USD" (BE-53) — the VND rows carry
-  // priceUsdCents: null, the USD rows carry priceVnd: 0. See
-  // business-rule.md#subscription: USD plans are display-only until a
-  // USD-capable PaymentProvider exists.
+  // Display-only USD price, shown instead of priceVnd when the site is in
+  // English (PlanSelector.tsx) — a fixed listed price, not a live
+  // exchange-rate conversion. Both fields are always populated together
+  // now (confirmed 2026-08-21, collapsed from an earlier 4-plan,
+  // separate-USD-row shape — see business-rule.md#subscription).
   priceUsdCents: number | null;
   currency: "VND" | "USD";
   isLifetime: boolean;
@@ -32,6 +34,9 @@ export type PaymentHistoryEntry = {
   planName: string;
   amount: number;
   currency: string;
+  // The plan's *current* listed USD display price — see SubscriptionPlan's
+  // own priceUsdCents comment. Not frozen at transaction time.
+  priceUsdCents: number | null;
   status: "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
   provider: string;
   createdAt: string;
